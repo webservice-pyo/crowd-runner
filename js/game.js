@@ -955,11 +955,11 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setClearColor(0x87CEEB);
+renderer.setClearColor(0x6eb5d9);
 document.body.insertBefore(renderer.domElement, document.body.firstChild);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x87CEEB, 40, 80);
+scene.fog = new THREE.Fog(0x6eb5d9, 40, 80);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
 camera.position.set(0, 7, -7);
@@ -983,9 +983,9 @@ scene.add(dirLight);
 //  SHARED MATERIALS & GEOMETRIES
 // ============================================================
 const MAT = {
-  ground: new THREE.MeshStandardMaterial({ color: 0x4a7c59 }),
-  road: new THREE.MeshStandardMaterial({ color: 0x666666 }),
-  roadLine: new THREE.MeshStandardMaterial({ color: 0xcccccc }),
+  ground: new THREE.MeshStandardMaterial({ color: 0x3d6b4a }),
+  road: new THREE.MeshStandardMaterial({ color: 0x444444 }),
+  roadLine: new THREE.MeshStandardMaterial({ color: 0xeeeeee }),
   redBox: new THREE.MeshStandardMaterial({ color: 0xef5350 }),
   weapon: new THREE.MeshStandardMaterial({ color: 0xff9800, emissive: 0xff6600, emissiveIntensity: 0.3 }),
   coin: new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xffaa00, emissiveIntensity: 0.3 }),
@@ -1443,6 +1443,8 @@ class Game {
 
     this.bossFightTimer = 0;
     this.bossAttackInterval = 0.5;
+    this.autoAttackTimer = 0;
+    this.autoAttackInterval = 0.4;
 
     this.buildScene();
   }
@@ -1478,6 +1480,99 @@ class Game {
     sideR.receiveShadow = true;
     this.objects.add(sideR);
 
+    // === ENVIRONMENT: Trees, buildings, street lights ===
+    const treeTrunkMat = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+    const treeLeafMat = new THREE.MeshLambertMaterial({ color: 0x228B22 });
+    const treeLeafDark = new THREE.MeshLambertMaterial({ color: 0x1a6b1a });
+    const buildingMats = [
+      new THREE.MeshLambertMaterial({ color: 0x607D8B }),
+      new THREE.MeshLambertMaterial({ color: 0x78909C }),
+      new THREE.MeshLambertMaterial({ color: 0x546E7A }),
+      new THREE.MeshLambertMaterial({ color: 0x455A64 }),
+    ];
+    const windowMat = new THREE.MeshBasicMaterial({ color: 0xffffcc });
+    const lampMat = new THREE.MeshLambertMaterial({ color: 0x333333 });
+    const lampGlowMat = new THREE.MeshBasicMaterial({ color: 0xffeeaa });
+
+    for (let z = 0; z < roadLength; z += 8) {
+      // Trees on both sides
+      for (const side of [-1, 1]) {
+        const x = side * (5 + Math.random() * 3);
+        const tree = new THREE.Group();
+        // Trunk
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.15, 1.5, 6), treeTrunkMat);
+        trunk.position.y = 0.75;
+        trunk.castShadow = true;
+        tree.add(trunk);
+        // Foliage layers
+        const leafSize = 0.6 + Math.random() * 0.4;
+        const leaf1 = new THREE.Mesh(new THREE.SphereGeometry(leafSize, 8, 6), Math.random() > 0.5 ? treeLeafMat : treeLeafDark);
+        leaf1.position.y = 1.8;
+        leaf1.castShadow = true;
+        tree.add(leaf1);
+        const leaf2 = new THREE.Mesh(new THREE.SphereGeometry(leafSize * 0.7, 7, 5), treeLeafMat);
+        leaf2.position.set(0.2, 2.2, 0.1);
+        tree.add(leaf2);
+        tree.position.set(x, 0, z + Math.random() * 4);
+        this.objects.add(tree);
+      }
+
+      // Buildings further back (every other segment)
+      if (z % 16 === 0) {
+        for (const side of [-1, 1]) {
+          const x = side * (10 + Math.random() * 4);
+          const bldgH = 3 + Math.random() * 5;
+          const bldgW = 2 + Math.random() * 2;
+          const bldg = new THREE.Group();
+          const body = new THREE.Mesh(
+            new THREE.BoxGeometry(bldgW, bldgH, 2),
+            buildingMats[Math.floor(Math.random() * buildingMats.length)]
+          );
+          body.position.y = bldgH / 2;
+          body.castShadow = true;
+          body.receiveShadow = true;
+          bldg.add(body);
+          // Windows
+          const rows = Math.floor(bldgH / 1.2);
+          const cols = Math.floor(bldgW / 0.8);
+          for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+              if (Math.random() > 0.3) {
+                const win = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.4), windowMat);
+                win.position.set(
+                  (c - (cols - 1) / 2) * 0.7,
+                  0.8 + r * 1.1,
+                  side > 0 ? -1.01 : 1.01
+                );
+                if (side > 0) win.rotation.y = Math.PI;
+                bldg.add(win);
+              }
+            }
+          }
+          bldg.position.set(x, 0, z + Math.random() * 8);
+          this.objects.add(bldg);
+        }
+      }
+
+      // Street lights along road edges
+      if (z % 12 === 0) {
+        for (const side of [-1, 1]) {
+          const lamp = new THREE.Group();
+          const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 2.5, 6), lampMat);
+          pole.position.y = 1.25;
+          lamp.add(pole);
+          const arm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.04), lampMat);
+          arm.position.set(side * -0.2, 2.5, 0);
+          lamp.add(arm);
+          const light = new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 6), lampGlowMat);
+          light.position.set(side * -0.4, 2.45, 0);
+          lamp.add(light);
+          lamp.position.set(side * 4.3, 0, z);
+          this.objects.add(lamp);
+        }
+      }
+    }
+
     // Player (try 3D model, fallback to block character)
     this.playerMesh = cloneSoldier(1.0);
     if (this.playerMesh) {
@@ -1491,15 +1586,15 @@ class Game {
 
     // Player name label above head
     const labelCanvas = document.createElement('canvas');
-    labelCanvas.width = 128; labelCanvas.height = 64;
+    labelCanvas.width = 256; labelCanvas.height = 64;
     const labelCtx = labelCanvas.getContext('2d');
     labelCtx.fillStyle = '#00ff88';
-    labelCtx.font = 'bold 36px Arial';
+    labelCtx.font = 'bold 32px Arial';
     labelCtx.textAlign = 'center';
-    labelCtx.fillText('서준', 64, 42);
+    labelCtx.fillText('서준 & 지노', 128, 42);
     const labelTex = new THREE.CanvasTexture(labelCanvas);
     const labelSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: labelTex, depthTest: false }));
-    labelSprite.scale.set(0.8, 0.4, 1);
+    labelSprite.scale.set(1.4, 0.4, 1);
     labelSprite.position.y = 1.5;
     this.playerMesh.add(labelSprite);
 
@@ -1850,28 +1945,81 @@ class Game {
         }
       });
 
-      // Obstacle collisions
+      // Auto-attack nearby zombies
+      this.autoAttackTimer += dt;
+      if (this.autoAttackTimer >= this.autoAttackInterval) {
+        this.autoAttackTimer = 0;
+        for (const obj of this.obstacleObjects) {
+          if (obj.userData.collected || obj.userData.type !== "zombie") continue;
+          const dx = this.playerX - obj.position.x;
+          const dz = this.playerZ - obj.position.z;
+          const dist = Math.sqrt(dx * dx + dz * dz);
+          // Attack zombies within range (ahead of player)
+          if (dz < 0 && dz > -10 && Math.abs(dx) < 3) {
+            // Initialize HP tracking
+            if (obj.userData.currentHP === undefined) obj.userData.currentHP = obj.userData.health;
+            const dmg = Math.floor(this.attackPower * (1 + this.allies * 0.1));
+            obj.userData.currentHP -= dmg;
+            // Fire bullets toward zombie
+            const bulletCount = Math.min(3, Math.ceil(this.allies / 3));
+            for (let b = 0; b < bulletCount; b++) {
+              this.spawnBullet(
+                this.playerX + (Math.random() - 0.5) * 1.5, 0.8, this.playerZ + 0.3,
+                obj.position.x + (Math.random() - 0.5) * 0.3, 0.7, obj.position.z
+              );
+            }
+            sound.playShoot();
+            this.spawnDamageNumber(obj.position.x, 2, obj.position.z, `-${dmg}`);
+
+            // Zombie hit flash
+            obj.traverse(c => {
+              if (c.isMesh && c.material && c.material.emissive) {
+                c.material.emissive.setHex(0xff0000);
+                setTimeout(() => { if (c.material) c.material.emissive.setHex(0x000000); }, 100);
+              }
+            });
+
+            if (obj.userData.currentHP <= 0) {
+              obj.userData.collected = true;
+              obj.visible = false;
+              this.spawnParticle(obj.position.x, 0.8, obj.position.z, 0x66bb6a, 12);
+              sound.playHit();
+              screenShake.trigger(0.2, 0.15);
+              // Reward: sometimes drop coins
+              this.coinsCollected += 5;
+              this.spawnDamageNumber(obj.position.x, 2.5, obj.position.z, '+5', 'coin');
+            }
+            break; // Attack one zombie at a time
+          }
+        }
+      }
+
+      // Obstacle collisions (contact damage)
       for (const obj of this.obstacleObjects) {
         if (obj.userData.collected) continue;
         const dx = this.playerX - obj.position.x;
         const dz = this.playerZ - obj.position.z;
-        if (Math.abs(dx) < 1.2 && Math.abs(dz) < 1.0) {
-          obj.userData.collected = true;
+        if (Math.abs(dx) < 1.0 && Math.abs(dz) < 0.8) {
           if (obj.userData.type === "red_box") {
+            obj.userData.collected = true;
             this.loseAllies(obj.userData.damage);
             this.spawnParticle(obj.position.x, 0.5, obj.position.z, 0xff0000, 8);
             this.spawnDamageNumber(obj.position.x, 2, obj.position.z, `-${obj.userData.damage}`);
             sound.playHit();
             screenShake.trigger(0.3, 0.2);
+            obj.visible = false;
           } else if (obj.userData.type === "zombie") {
-            const zombieDmg = Math.ceil(obj.userData.health / this.attackPower);
+            // Touching zombie = take damage (didn't kill in time)
+            if (obj.userData.currentHP === undefined) obj.userData.currentHP = obj.userData.health;
+            const zombieDmg = Math.max(1, Math.ceil(obj.userData.currentHP / this.attackPower));
+            obj.userData.collected = true;
             this.loseAllies(zombieDmg);
-            this.spawnParticle(obj.position.x, 0.5, obj.position.z, 0x66bb6a, 8);
+            this.spawnParticle(obj.position.x, 0.5, obj.position.z, 0xff4444, 8);
             this.spawnDamageNumber(obj.position.x, 2, obj.position.z, `-${zombieDmg}`);
             sound.playHit();
             screenShake.trigger(0.4, 0.25);
+            obj.visible = false;
           }
-          obj.visible = false;
         }
       }
 
