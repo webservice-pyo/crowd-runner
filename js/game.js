@@ -335,62 +335,70 @@ let soldierAnimations = null;
 const MODEL_URLS = [
   'https://threejs.org/examples/models/gltf/Soldier.glb',
   'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/models/gltf/Soldier.glb',
-  'https://unpkg.com/three@0.160.0/examples/models/gltf/Soldier.glb',
 ];
 
 const gltfLoader = new GLTFLoader();
 
+// Use fetch to download the GLB as ArrayBuffer, then parse with GLTFLoader
+// This avoids silent failures from XMLHttpRequest CORS issues
 function loadSoldierModel(onProgress) {
-  return new Promise((resolve, reject) => {
-    let urlIndex = 0;
-    let settled = false;
+  return new Promise(async (resolve, reject) => {
+    for (let i = 0; i < MODEL_URLS.length; i++) {
+      const url = MODEL_URLS[i];
+      console.log(`Trying model from: ${url}`);
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-    function tryLoad() {
-      if (settled) return;
-      if (urlIndex >= MODEL_URLS.length) {
-        settled = true;
-        reject(new Error('All model URLs failed'));
-        return;
-      }
-      const currentIndex = urlIndex;
-      const url = MODEL_URLS[currentIndex];
-      console.log(`Loading model from: ${url}`);
+        const response = await fetch(url, {
+          signal: controller.signal,
+          mode: 'cors',
+        });
+        clearTimeout(timeoutId);
 
-      // Timeout per attempt - 5s per URL
-      const timeout = setTimeout(() => {
-        if (settled || urlIndex !== currentIndex) return;
-        console.warn(`Timeout loading from ${url}, trying next...`);
-        urlIndex++;
-        tryLoad();
-      }, 5000);
-
-      gltfLoader.load(
-        url,
-        (gltf) => {
-          if (settled) return;
-          settled = true;
-          clearTimeout(timeout);
-          soldierModel = gltf.scene;
-          soldierAnimations = gltf.animations;
-          console.log('Model loaded successfully, animations:', gltf.animations.map(a => a.name));
-          resolve(gltf);
-        },
-        (xhr) => {
-          if (xhr.lengthComputable && onProgress) {
-            onProgress(xhr.loaded / xhr.total);
-          }
-        },
-        (error) => {
-          if (settled || urlIndex !== currentIndex) return;
-          clearTimeout(timeout);
-          console.warn(`Failed to load from ${url}:`, error);
-          urlIndex++;
-          tryLoad();
+        if (!response.ok) {
+          console.warn(`HTTP ${response.status} from ${url}`);
+          continue;
         }
-      );
-    }
 
-    tryLoad();
+        const contentLength = response.headers.get('content-length');
+        const total = contentLength ? parseInt(contentLength, 10) : 0;
+        const reader = response.body.getReader();
+        const chunks = [];
+        let loaded = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          loaded += value.length;
+          if (total > 0 && onProgress) onProgress(loaded / total);
+        }
+
+        const blob = new Blob(chunks);
+        const arrayBuffer = await blob.arrayBuffer();
+
+        // Parse the GLB data
+        await new Promise((res, rej) => {
+          gltfLoader.parse(arrayBuffer, '', (gltf) => {
+            soldierModel = gltf.scene;
+            soldierAnimations = gltf.animations;
+            console.log('Model loaded successfully, animations:', gltf.animations.map(a => a.name));
+            res(gltf);
+          }, (error) => {
+            console.warn('GLB parse error:', error);
+            rej(error);
+          });
+        });
+
+        resolve();
+        return;
+      } catch (err) {
+        console.warn(`Failed to load from ${url}:`, err.message || err);
+        continue;
+      }
+    }
+    reject(new Error('All model URLs failed'));
   });
 }
 
@@ -2334,12 +2342,12 @@ function startApp() {
   animate(performance.now());
 }
 
-// Global safety timeout - if nothing happens in 8s, start anyway with fallback characters
+// Global safety timeout - if nothing happens in 5s, start anyway with fallback characters
 const safetyTimeout = setTimeout(() => {
   console.warn('Safety timeout reached, starting without model');
   if (loadingText) loadingText.textContent = '기본 모드로 시작합니다...';
   startApp();
-}, 8000);
+}, 5000);
 
 loadSoldierModel((progress) => {
   const pct = Math.floor(progress * 100);
