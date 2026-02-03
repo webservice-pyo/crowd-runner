@@ -390,6 +390,78 @@ canvas { display: block; }
   pointer-events: none; z-index: 11;
 }
 
+/* ============ ENDING CREDIT ============ */
+#endingCredit {
+  background: linear-gradient(135deg, #0a0015, #1a0033, #0f0c29);
+  z-index: 15;
+  overflow-y: auto;
+  justify-content: flex-start !important;
+}
+.ending-container {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 40px 20px 60px; min-height: 100%;
+  animation: endingFadeIn 1s ease-out;
+}
+@keyframes endingFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.ending-congrats {
+  font-size: 3em; font-weight: 900; color: #ffd700;
+  text-shadow: 0 0 40px rgba(255,215,0,0.6), 0 0 80px rgba(255,215,0,0.3);
+  margin-bottom: 10px;
+  animation: victoryBounce 0.8s ease-out;
+}
+.ending-clear {
+  font-size: 1.3em; color: #64ffda; margin-bottom: 30px;
+  letter-spacing: 3px;
+  animation: slideUp 0.6s ease-out 0.3s both;
+}
+.ending-photo-frame {
+  width: 280px; height: 280px; border-radius: 20px; overflow: hidden;
+  border: 3px solid rgba(255,215,0,0.5);
+  box-shadow: 0 0 40px rgba(255,215,0,0.2), 0 10px 40px rgba(0,0,0,0.5);
+  margin-bottom: 20px;
+  animation: slideUp 0.6s ease-out 0.5s both;
+}
+.ending-photo {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.ending-names {
+  font-size: 2em; font-weight: 800; color: #fff;
+  text-shadow: 0 0 20px rgba(100,200,255,0.5);
+  margin-bottom: 15px;
+  animation: slideUp 0.6s ease-out 0.7s both;
+}
+.ending-message {
+  color: #ccd6f6; font-size: 1.1em; text-align: center;
+  line-height: 1.8; margin-bottom: 30px;
+  animation: slideUp 0.6s ease-out 0.9s both;
+}
+.ending-credits {
+  text-align: center; margin-bottom: 30px;
+  animation: slideUp 0.6s ease-out 1.1s both;
+}
+.credit-line {
+  color: #ffd700; font-size: 1.2em; font-weight: 700;
+  letter-spacing: 5px; margin-bottom: 15px;
+}
+.credit-item {
+  color: #8892b0; font-size: 1em; margin-bottom: 8px;
+}
+.ending-stats {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 20px 30px; margin-bottom: 30px;
+  text-align: center; min-width: 250px;
+  animation: slideUp 0.6s ease-out 1.3s both;
+}
+.ending-stats .stat-title {
+  color: #64ffda; font-size: 1em; font-weight: 700; margin-bottom: 10px;
+}
+.ending-stats .stat-item {
+  color: #ccd6f6; font-size: 0.95em; margin-bottom: 6px;
+}
+
 /* ============ RESPONSIVE ============ */
 @media (max-width: 400px) {
   #mainMenu .title { font-size: 2.2em; }
