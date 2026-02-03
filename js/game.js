@@ -959,11 +959,11 @@ renderer.setClearColor(0x87CEEB);
 document.body.insertBefore(renderer.domElement, document.body.firstChild);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x87CEEB, 40, 80);
+scene.fog = new THREE.Fog(0x87CEEB, 30, 60);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
-camera.position.set(0, 8, -8);
-camera.lookAt(0, 0, 5);
+camera.position.set(0, 4.5, -5);
+camera.lookAt(0, 1, 4);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
 scene.add(ambientLight);
@@ -1416,7 +1416,7 @@ class Game {
     this.playerX = 0;
     this.targetX = 0;
     this.playerZ = 0;
-    this.speed = 10;
+    this.speed = 5;
     this.coinsCollected = 0;
 
     this.objects = new THREE.Group();
@@ -1480,22 +1480,22 @@ class Game {
       this.playerMixer = createSoldierMixer(this.playerMesh);
       if (this.playerMixer) playAnimation(this.playerMixer, 'run');
     } else {
-      this.playerMesh = createFallbackCharacter(0x2196F3, 1.2);
+      this.playerMesh = createFallbackCharacter(0x2196F3, 1.5);
       this.playerMesh.position.set(0, 0, 0);
       this.objects.add(this.playerMesh);
     }
 
     // Player indicator arrow above head
     const arrowMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const arrowMesh = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.6, 8), arrowMat);
-    arrowMesh.position.y = 3.5;
+    const arrowMesh = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.8, 8), arrowMat);
+    arrowMesh.position.y = 3.2;
     arrowMesh.rotation.x = Math.PI; // point downward
     this.playerMesh.add(arrowMesh);
     this._playerArrow = arrowMesh;
 
     // Reset camera to player start position
-    camera.position.set(this.playerX * 0.3, 8, this.playerZ - 8);
-    camera.lookAt(this.playerX * 0.5, 0, this.playerZ + 5);
+    camera.position.set(this.playerX * 0.3, 4.5, this.playerZ - 5);
+    camera.lookAt(this.playerX * 0.5, 1, this.playerZ + 4);
 
     // Allies
     this.rebuildAllyMeshes();
@@ -1708,13 +1708,13 @@ class Game {
         if (mixer) playAnimation(mixer, 'run');
       } else {
         // Fallback: simple character
-        allyMesh = createFallbackCharacter(0x42a5f5, 0.7);
+        allyMesh = createFallbackCharacter(0x42a5f5, 1.0);
       }
 
       const row = Math.floor(i / 5);
       const col = (i % 5) - 2;
-      allyMesh.userData.offsetX = col * 0.55 + (Math.random() - 0.5) * 0.15;
-      allyMesh.userData.offsetZ = -(row + 1) * 0.6 + (Math.random() - 0.5) * 0.15;
+      allyMesh.userData.offsetX = col * 0.8 + (Math.random() - 0.5) * 0.2;
+      allyMesh.userData.offsetZ = -(row + 1) * 0.9 + (Math.random() - 0.5) * 0.2;
       allyMesh.userData.bobPhase = Math.random() * Math.PI * 2;
 
       this.objects.add(allyMesh);
@@ -2023,15 +2023,15 @@ class Game {
     // Screen shake update
     screenShake.update(dt);
 
-    // Camera
+    // Camera - closer and lower for better visibility
     const camTargetX = this.playerX * 0.3;
-    const camTargetZ = this.playerZ - 8;
+    const camTargetZ = this.playerZ - 5;
     camera.position.x += (camTargetX - camera.position.x) * 3 * dt;
     camera.position.z += (camTargetZ - camera.position.z) * 3 * dt;
-    camera.position.y = 8;
+    camera.position.y = 4.5;
     camera.position.x += screenShake.offsetX;
     camera.position.y += screenShake.offsetY;
-    camera.lookAt(this.playerX * 0.5, 0, this.playerZ + 5);
+    camera.lookAt(this.playerX * 0.5, 1, this.playerZ + 4);
 
     dirLight.position.set(this.playerX + 5, 15, this.playerZ - 5);
     dirLight.target.position.set(this.playerX, 0, this.playerZ);
@@ -2138,7 +2138,7 @@ function onInputMove(clientX) {
   if (!game || !game.isRunning || !inputActive) return;
   const dx = clientX - lastInputX;
   lastInputX = clientX;
-  game.targetX += dx * 0.015;
+  game.targetX -= dx * 0.015;
   game.targetX = Math.max(-3, Math.min(3, game.targetX));
 }
 function onInputEnd() { inputActive = false; }
@@ -2153,8 +2153,8 @@ touchArea.addEventListener('touchend', onInputEnd);
 
 document.addEventListener('keydown', (e) => {
   if (!game || !game.isRunning) return;
-  if (e.key === 'ArrowLeft' || e.key === 'a') game.targetX -= 0.8;
-  if (e.key === 'ArrowRight' || e.key === 'd') game.targetX += 0.8;
+  if (e.key === 'ArrowLeft' || e.key === 'a') game.targetX += 0.5;
+  if (e.key === 'ArrowRight' || e.key === 'd') game.targetX -= 0.5;
   game.targetX = Math.max(-3, Math.min(3, game.targetX));
 });
 
