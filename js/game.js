@@ -1339,52 +1339,51 @@ function createBoss3D(bossData) {
 // ============================================================
 function createFallbackCharacter(color, scale = 1.0) {
   const group = new THREE.Group();
-  const mat = new THREE.MeshStandardMaterial({ color });
-  // Body
-  const body = new THREE.Mesh(GEO.box, mat);
-  body.scale.set(0.5, 0.8, 0.35);
-  body.position.y = 0.7;
+  // Use MeshLambertMaterial for reliable visibility
+  const mat = new THREE.MeshLambertMaterial({ color });
+  const skinMat = new THREE.MeshLambertMaterial({ color: 0xffcc99 });
+  // Body (torso)
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.0, 0.45), mat);
+  body.position.y = 1.2;
   body.castShadow = true;
   group.add(body);
   // Head
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.25, 10, 10), mat);
-  head.position.y = 1.35;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.35, 12, 12), skinMat);
+  head.position.y = 2.15;
   head.castShadow = true;
   group.add(head);
   // Eyes
-  const eyeGeo = new THREE.SphereGeometry(0.05, 6, 6);
-  const eyeMat = new THREE.MeshStandardMaterial({ color: 0xffffff });
+  const eyeGeo = new THREE.SphereGeometry(0.07, 8, 8);
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
   const eyeL = new THREE.Mesh(eyeGeo, eyeMat);
-  eyeL.position.set(-0.08, 1.4, 0.2);
+  eyeL.position.set(-0.12, 2.2, 0.28);
   group.add(eyeL);
   const eyeR = eyeL.clone();
-  eyeR.position.set(0.08, 1.4, 0.2);
+  eyeR.position.set(0.12, 2.2, 0.28);
   group.add(eyeR);
   // Pupils
-  const pupilGeo = new THREE.SphereGeometry(0.025, 6, 6);
-  const pupilMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+  const pupilGeo = new THREE.SphereGeometry(0.04, 6, 6);
+  const pupilMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
   const pupilL = new THREE.Mesh(pupilGeo, pupilMat);
-  pupilL.position.set(-0.08, 1.4, 0.24);
+  pupilL.position.set(-0.12, 2.2, 0.34);
   group.add(pupilL);
   const pupilR = pupilL.clone();
-  pupilR.position.set(0.08, 1.4, 0.24);
+  pupilR.position.set(0.12, 2.2, 0.34);
   group.add(pupilR);
   // Legs
-  const legMat = new THREE.MeshStandardMaterial({ color: 0x1565C0 });
-  const legGeo = new THREE.BoxGeometry(0.15, 0.4, 0.15);
-  const legL = new THREE.Mesh(legGeo, legMat);
-  legL.position.set(-0.12, 0.2, 0);
+  const legMat = new THREE.MeshLambertMaterial({ color: 0x1565C0 });
+  const legL = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.6, 0.22), legMat);
+  legL.position.set(-0.18, 0.3, 0);
   group.add(legL);
-  const legR = new THREE.Mesh(legGeo, legMat);
-  legR.position.set(0.12, 0.2, 0);
+  const legR = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.6, 0.22), legMat);
+  legR.position.set(0.18, 0.3, 0);
   group.add(legR);
   // Arms
-  const armGeo = new THREE.BoxGeometry(0.12, 0.5, 0.12);
-  const armL = new THREE.Mesh(armGeo, mat);
-  armL.position.set(-0.35, 0.65, 0);
+  const armL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.65, 0.18), skinMat);
+  armL.position.set(-0.5, 1.1, 0);
   group.add(armL);
-  const armR = new THREE.Mesh(armGeo, mat);
-  armR.position.set(0.35, 0.65, 0);
+  const armR = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.65, 0.18), skinMat);
+  armR.position.set(0.5, 1.1, 0);
   group.add(armR);
 
   group.scale.set(scale, scale, scale);
@@ -1481,10 +1480,22 @@ class Game {
       this.playerMixer = createSoldierMixer(this.playerMesh);
       if (this.playerMixer) playAnimation(this.playerMixer, 'run');
     } else {
-      this.playerMesh = createFallbackCharacter(0x2196F3, 1.0);
+      this.playerMesh = createFallbackCharacter(0x2196F3, 1.2);
       this.playerMesh.position.set(0, 0, 0);
       this.objects.add(this.playerMesh);
     }
+
+    // Player indicator arrow above head
+    const arrowMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const arrowMesh = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.6, 8), arrowMat);
+    arrowMesh.position.y = 3.5;
+    arrowMesh.rotation.x = Math.PI; // point downward
+    this.playerMesh.add(arrowMesh);
+    this._playerArrow = arrowMesh;
+
+    // Reset camera to player start position
+    camera.position.set(this.playerX * 0.3, 8, this.playerZ - 8);
+    camera.lookAt(this.playerX * 0.5, 0, this.playerZ + 5);
 
     // Allies
     this.rebuildAllyMeshes();
@@ -1899,6 +1910,11 @@ class Game {
           obj.rotation.y += dt * 3;
           obj.position.y = 0.6 + Math.sin(time * 3 + (obj.userData.floatPhase || 0)) * 0.15;
         }
+      }
+
+      // Player arrow bob
+      if (this._playerArrow) {
+        this._playerArrow.position.y = 3.5 + Math.sin(time * 4) * 0.2;
       }
 
       if (this.playerZ >= this.stageData.boss.z - 5) {
