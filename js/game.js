@@ -2289,10 +2289,30 @@ class Game {
   }
 
   destroy() {
+    // Stop all animation mixers first
+    if (this.playerMixer) this.playerMixer.stopAllAction();
+    this.allyMixers.forEach(m => { if (m) m.stopAllAction(); });
+
     scene.remove(this.objects);
-    // Only dispose dynamically created geometries/materials, not shared ones
+
+    // Collect ALL shared geometries and materials that must NOT be disposed
     const sharedGeos = new Set(Object.values(GEO));
     const sharedMats = new Set(Object.values(MAT));
+
+    // Protect soldierModel's geometries and materials (SkeletonUtils.clone shares them)
+    if (soldierModel) {
+      soldierModel.traverse(child => {
+        if (child.geometry) sharedGeos.add(child.geometry);
+        if (child.material) {
+          const mats = Array.isArray(child.material) ? child.material : [child.material];
+          mats.forEach(m => {
+            sharedMats.add(m);
+            if (m.map) sharedMats.add(m.map);
+          });
+        }
+      });
+    }
+
     this.objects.traverse(obj => {
       if (obj.geometry && !sharedGeos.has(obj.geometry)) {
         obj.geometry.dispose();
