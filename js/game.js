@@ -1586,6 +1586,7 @@ class Game {
       this.playerMesh = createFallbackCharacter(0x2196F3, 1.0);
     }
     this.playerMesh.position.set(0, 0, 0);
+    this.playerMesh.rotation.y = Math.PI; // 캐릭터가 앞(+Z)을 바라보도록 회전
     this.objects.add(this.playerMesh);
 
     // Player name label above head
@@ -1820,6 +1821,7 @@ class Game {
       allyMesh.userData.offsetX = col * 0.6 + (Math.random() - 0.5) * 0.2;
       allyMesh.userData.offsetZ = -(row + 1) * 0.7 + (Math.random() - 0.5) * 0.2;
       allyMesh.userData.bobPhase = Math.random() * Math.PI * 2;
+      allyMesh.rotation.y = Math.PI; // 아군도 앞(+Z)을 바라보도록 회전
 
       this.objects.add(allyMesh);
       this.allyMeshes.push(allyMesh);
