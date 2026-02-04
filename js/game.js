@@ -839,7 +839,13 @@ const DEFAULT_SAVE = {
 function loadGameData() {
   try {
     const data = localStorage.getItem('crowdRunnerSave');
-    if (data) return { ...DEFAULT_SAVE, ...JSON.parse(data) };
+    if (data) {
+      const saved = { ...DEFAULT_SAVE, ...JSON.parse(data) };
+      // 스테이지 범위 보정 (이전 버그로 11 이상 저장된 경우 대비)
+      saved.currentStage = Math.max(1, Math.min(saved.currentStage, 10));
+      saved.maxStage = Math.max(1, Math.min(saved.maxStage, 10));
+      return saved;
+    }
   } catch (e) { /* ignore */ }
   return { ...DEFAULT_SAVE };
 }
@@ -2261,11 +2267,18 @@ class Game {
     else if (survivalRate >= 0.4) stars = 2;
 
     gameData.coins += totalCoins;
-    if (gameData.currentStage === gameData.maxStage) gameData.maxStage++;
-    gameData.currentStage = Math.min(gameData.currentStage + 1, gameData.maxStage);
+    const clearedStage = this.stageId;
+
+    if (clearedStage >= 10) {
+      // 마지막 스테이지 클리어 - currentStage를 10으로 유지
+      gameData.maxStage = Math.max(gameData.maxStage, 10);
+      gameData.currentStage = 10;
+    } else {
+      if (gameData.currentStage === gameData.maxStage) gameData.maxStage++;
+      gameData.currentStage = Math.min(gameData.currentStage + 1, 10);
+    }
     saveGameData(gameData);
 
-    const clearedStage = this.stageId;
     setTimeout(() => {
       if (clearedStage >= 10) {
         // Show ending credits!
@@ -2511,6 +2524,9 @@ function showStageIntro(stageId, stageName, callback) {
 }
 
 function startGame(stageId) {
+  // 스테이지 범위를 1~10으로 제한
+  stageId = Math.max(1, Math.min(stageId, 10));
+  gameData.currentStage = stageId;
   if (game) game.destroy();
   game = null; // Clear reference before creating new
   game = new Game(stageId);
