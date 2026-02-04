@@ -916,7 +916,30 @@ function showEndingCredit(totalCoins, stars, survivedAllies, startAllies) {
     <div class="stat-item">별: ${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
   `;
 
-  $('endingCredit').classList.add('active');
+  // 엔딩 사진 강제 로드
+  const endingPhoto = $('endingPhoto');
+  if (endingPhoto) {
+    endingPhoto.src = 'images/ending.jpg?' + Date.now();
+  }
+
+  // CSS 애니메이션 리셋 (두번째 방문 시에도 애니메이션 재생되도록)
+  const endingEl = $('endingCredit');
+  endingEl.classList.remove('active');
+  const container = $('endingContainer');
+  if (container) {
+    container.style.animation = 'none';
+    container.offsetHeight; // reflow 강제
+    container.style.animation = '';
+  }
+  // 자식 요소들의 slideUp 애니메이션도 리셋
+  endingEl.querySelectorAll('[class*="ending-"]').forEach(el => {
+    el.style.animation = 'none';
+    el.offsetHeight;
+    el.style.animation = '';
+  });
+
+  endingEl.classList.add('active');
+  endingEl.scrollTop = 0;
   spawnConfetti();
   setTimeout(spawnConfetti, 1500);
   setTimeout(spawnConfetti, 3000);
