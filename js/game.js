@@ -921,18 +921,28 @@ function showEndingCredit(totalCoins, stars, survivedAllies, startAllies) {
     <div class="stat-item">별: ${'⭐'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
   `;
 
-  // 엔딩 사진 강제 로드
-  const endingPhoto = $('endingPhoto');
-  if (endingPhoto) {
-    endingPhoto.src = 'images/ending.jpg?' + Date.now();
-  }
-
-  // 엔딩 화면 표시 (active 제거 후 다시 추가하여 CSS 애니메이션 리트리거)
+  // 엔딩 화면 표시
   const endingEl = $('endingCredit');
   endingEl.classList.remove('active');
   void endingEl.offsetHeight; // reflow 강제
   endingEl.classList.add('active');
   endingEl.scrollTop = 0;
+
+  // 엔딩 사진 확실히 표시
+  const endingPhoto = $('endingPhoto');
+  if (endingPhoto) {
+    endingPhoto.src = 'images/ending.jpg';
+    endingPhoto.style.display = 'block';
+    endingPhoto.style.visibility = 'visible';
+    endingPhoto.style.opacity = '1';
+  }
+  // 사진 프레임도 확실히 표시
+  const photoFrame = document.querySelector('.ending-photo-frame');
+  if (photoFrame) {
+    photoFrame.style.opacity = '1';
+    photoFrame.style.transform = 'none';
+    photoFrame.style.display = 'block';
+  }
 
   spawnConfetti();
   setTimeout(spawnConfetti, 1500);
@@ -2582,7 +2592,17 @@ $('btnReplay').addEventListener('click', () => {
 $('btnCompleteMenu').addEventListener('click', () => { sound.playClick(); if (game) game.destroy(); game = null; showScreen('menu'); });
 $('btnRetry').addEventListener('click', () => { sound.playClick(); startGame(gameData.currentStage); });
 $('btnFailMenu').addEventListener('click', () => { sound.playClick(); if (game) game.destroy(); game = null; showScreen('menu'); });
-$('btnEndingMenu').addEventListener('click', () => { sound.playClick(); if (game) game.destroy(); game = null; showScreen('menu'); });
+$('btnEndingMenu').addEventListener('click', () => {
+  sound.playClick();
+  if (game) game.destroy();
+  game = null;
+  // 올클리어 후 스테이지 1로 리셋
+  gameData.currentStage = 1;
+  gameData.maxStage = 1;
+  saveGameData(gameData);
+  renderer.domElement.style.display = 'block';
+  showScreen('menu');
+});
 $('btnSound').addEventListener('click', () => {
   initSound();
   const enabled = sound.toggle();
