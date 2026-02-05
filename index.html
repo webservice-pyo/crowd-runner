@@ -153,6 +153,15 @@
 }
 </script>
 
-<script type="module" src="js/game.js"></script>
+<script>
+// 모듈 로딩 실패 시 로딩 화면에서 벗어나기 위한 안전장치
+setTimeout(function() {
+  var ls = document.getElementById('loadingScreen');
+  if (ls && ls.style.display !== 'none') {
+    ls.querySelector('.loading-text').textContent = '로딩 시간이 오래 걸리고 있습니다. 페이지를 새로고침 해주세요.';
+  }
+}, 15000);
+</script>
+<script type="module" src="js/game.js?v=2"></script>
 </body>
 </html>
