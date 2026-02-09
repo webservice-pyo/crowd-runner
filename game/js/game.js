@@ -434,6 +434,83 @@ function playAnimation(mixer, animName) {
 }
 
 // ============================================================
+//  KAYKIT MODEL CACHE - Skeleton Characters & Dungeon Props
+// ============================================================
+const KAYKIT_MODELS = {
+  skeleton_warrior: { url: 'https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0/main/addons/kaykit_character_pack_skeletons/Characters/gltf/Skeleton_Warrior.glb', model: null, animations: null },
+  skeleton_mage: { url: 'https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0/main/addons/kaykit_character_pack_skeletons/Characters/gltf/Skeleton_Mage.glb', model: null, animations: null },
+  skeleton_rogue: { url: 'https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0/main/addons/kaykit_character_pack_skeletons/Characters/gltf/Skeleton_Rogue.glb', model: null, animations: null },
+  skeleton_minion: { url: 'https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0/main/addons/kaykit_character_pack_skeletons/Characters/gltf/Skeleton_Minion.glb', model: null, animations: null },
+  barrel: { url: 'https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/main/addons/kaykit_dungeon_remastered/Assets/gltf/barrel_large.glb', model: null },
+  torch_lit: { url: 'https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/main/addons/kaykit_dungeon_remastered/Assets/gltf/torch_lit.glb', model: null },
+  chest: { url: 'https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/main/addons/kaykit_dungeon_remastered/Assets/gltf/chest.glb', model: null },
+  column: { url: 'https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/main/addons/kaykit_dungeon_remastered/Assets/gltf/column.glb', model: null },
+  wall: { url: 'https://raw.githubusercontent.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0/main/addons/kaykit_dungeon_remastered/Assets/gltf/wall.glb', model: null },
+};
+
+function loadKayKitModels() {
+  Object.keys(KAYKIT_MODELS).forEach(function(name) {
+    const entry = KAYKIT_MODELS[name];
+    const url = entry.url;
+    console.log('Loading KayKit model:', name);
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'arraybuffer';
+    xhr.timeout = 15000;
+
+    xhr.onload = function() {
+      if (xhr.status === 200 && xhr.response) {
+        try {
+          gltfLoader.parse(xhr.response, '', function(gltf) {
+            entry.model = gltf.scene;
+            if (gltf.animations && gltf.animations.length > 0) {
+              entry.animations = gltf.animations;
+            }
+            console.log('KayKit model loaded:', name, gltf.animations ? gltf.animations.map(function(a) { return a.name; }) : 'no anims');
+          }, function(err) {
+            console.warn('KayKit parse error for ' + name + ':', err);
+          });
+        } catch (e) {
+          console.warn('KayKit parse exception for ' + name + ':', e);
+        }
+      } else {
+        console.warn('KayKit HTTP', xhr.status, 'for', name);
+      }
+    };
+
+    xhr.onerror = function() {
+      console.warn('KayKit network error for', name);
+    };
+
+    xhr.ontimeout = function() {
+      console.warn('KayKit timeout for', name);
+    };
+
+    xhr.send();
+  });
+}
+
+function cloneKayKitModel(name, scale) {
+  const entry = KAYKIT_MODELS[name];
+  if (!entry || !entry.model) return null;
+  try {
+    const clone = SkeletonUtilsClone(entry.model);
+    clone.scale.set(scale, scale, scale);
+    clone.traverse(function(child) {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+    return clone;
+  } catch (e) {
+    console.warn('cloneKayKitModel failed for ' + name + ':', e);
+    return null;
+  }
+}
+
+// ============================================================
 //  STAGE DATA (Korean names)
 // ============================================================
 const STAGES = [
@@ -1028,11 +1105,11 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.setClearColor(0x6eb5d9);
+renderer.setClearColor(0x1a1a2e);
 document.body.insertBefore(renderer.domElement, document.body.firstChild);
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x6eb5d9, 40, 80);
+scene.fog = new THREE.FogExp2(0x1a1a2e, 0.015);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 200);
 camera.position.set(0, 7, -7);
@@ -1056,35 +1133,19 @@ scene.add(dirLight);
 //  SHARED MATERIALS & GEOMETRIES
 // ============================================================
 const MAT = {
-  ground: new THREE.MeshStandardMaterial({ color: 0x3d6b4a }),
-  road: new THREE.MeshStandardMaterial({ color: 0x444444 }),
-  roadLine: new THREE.MeshStandardMaterial({ color: 0xeeeeee }),
+  ground: new THREE.MeshStandardMaterial({ color: 0x2a2a25 }),
+  road: new THREE.MeshStandardMaterial({ color: 0x3a3a35 }),
+  roadLine: new THREE.MeshStandardMaterial({ color: 0x666655 }),
   redBox: new THREE.MeshStandardMaterial({ color: 0xef5350 }),
   weapon: new THREE.MeshStandardMaterial({ color: 0xff9800, emissive: 0xff6600, emissiveIntensity: 0.3 }),
   coin: new THREE.MeshStandardMaterial({ color: 0xffd700, emissive: 0xffaa00, emissiveIntensity: 0.3 }),
   gateMultiply: new THREE.MeshStandardMaterial({ color: 0x4caf50, transparent: true, opacity: 0.7 }),
   gateAdd: new THREE.MeshStandardMaterial({ color: 0x7c4dff, transparent: true, opacity: 0.7 }),
   bullet: new THREE.MeshBasicMaterial({ color: 0xffff00, transparent: true, opacity: 0.9 }),
-  // Villain materials - Stone Golem theme
-  // -- Golem stone / rock textures --
-  golemStone: new THREE.MeshStandardMaterial({ color: 0x7a6e5d, roughness: 0.95, metalness: 0.05 }),
-  golemStoneDark: new THREE.MeshStandardMaterial({ color: 0x5a4e3d, roughness: 0.9, metalness: 0.1 }),
-  golemStoneLight: new THREE.MeshStandardMaterial({ color: 0x9a8e7d, roughness: 0.85, metalness: 0.05 }),
-  golemCrystal: new THREE.MeshStandardMaterial({ color: 0x00e5ff, emissive: 0x00bcd4, emissiveIntensity: 0.8, metalness: 0.3, roughness: 0.1, transparent: true, opacity: 0.85 }),
-  golemCrystalGlow: new THREE.MeshBasicMaterial({ color: 0x00ffff, transparent: true, opacity: 0.6 }),
-  golemEye: new THREE.MeshBasicMaterial({ color: 0x00e5ff }),
-  golemMouth: new THREE.MeshBasicMaterial({ color: 0x00bcd4 }),
-  golemPants: new THREE.MeshStandardMaterial({ color: 0x2a2a3a, roughness: 0.8 }),
-  golemBlade: new THREE.MeshStandardMaterial({ color: 0x00e5ff, emissive: 0x0088aa, emissiveIntensity: 0.6, metalness: 0.7, roughness: 0.1 }),
-  golemBladeHandle: new THREE.MeshStandardMaterial({ color: 0x3a3a2a, metalness: 0.5, roughness: 0.4 }),
-  // -- Boss variants --
-  bossGolemStone: new THREE.MeshStandardMaterial({ color: 0x6a5e4d, roughness: 0.9, metalness: 0.15 }),
-  bossGolemCrystal: new THREE.MeshStandardMaterial({ color: 0x00ffcc, emissive: 0x00e5aa, emissiveIntensity: 1.0, metalness: 0.4, roughness: 0.05, transparent: true, opacity: 0.9 }),
-  bossGolemArmor: new THREE.MeshStandardMaterial({ color: 0x4a4a3a, metalness: 0.7, roughness: 0.3 }),
-  bossGolemEye: new THREE.MeshBasicMaterial({ color: 0xff4400 }),
-  bossFireCrystal: new THREE.MeshStandardMaterial({ color: 0xff4400, emissive: 0xff2200, emissiveIntensity: 1.0, metalness: 0.3, roughness: 0.1, transparent: true, opacity: 0.85 }),
-  bossShadowCrystal: new THREE.MeshStandardMaterial({ color: 0xaa00ff, emissive: 0x6600cc, emissiveIntensity: 0.8, metalness: 0.3, roughness: 0.1, transparent: true, opacity: 0.85 }),
-  bossDragonCrystal: new THREE.MeshStandardMaterial({ color: 0xff0044, emissive: 0xcc0033, emissiveIntensity: 1.0, metalness: 0.3, roughness: 0.1, transparent: true, opacity: 0.85 }),
+  // Dungeon environment materials
+  dungeonColumn: new THREE.MeshStandardMaterial({ color: 0x6a6a60, roughness: 0.9, metalness: 0.1 }),
+  dungeonBarrel: new THREE.MeshStandardMaterial({ color: 0x8B6914, roughness: 0.85 }),
+  dungeonTorchGlow: new THREE.MeshBasicMaterial({ color: 0xff8800 }),
 };
 
 const GEO = {
@@ -1103,132 +1164,60 @@ const GEO = {
 function createZombieEnemy(data) {
   const group = new THREE.Group();
 
-  // --- Stone Golem (based on crystal-sword golem image) ---
+  // Try to use KayKit skeleton model
+  const skeletonTypes = ['skeleton_warrior', 'skeleton_minion', 'skeleton_rogue'];
+  const chosen = skeletonTypes[Math.floor(Math.random() * skeletonTypes.length)];
+  const modelData = KAYKIT_MODELS[chosen];
 
-  // Legs (dark stone pants)
-  const legL = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.4, 0.16), MAT.golemPants);
-  legL.position.set(-0.12, 0.2, 0);
-  legL.castShadow = true;
-  group.add(legL);
-  const legR = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.4, 0.16), MAT.golemPants);
-  legR.position.set(0.12, 0.2, -0.04);
-  legR.castShadow = true;
-  group.add(legR);
-
-  // Feet (stone)
-  const footL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.08, 0.22), MAT.golemStoneDark);
-  footL.position.set(-0.12, 0.02, 0.03);
-  group.add(footL);
-  const footR = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.08, 0.22), MAT.golemStoneDark);
-  footR.position.set(0.12, 0.02, -0.01);
-  group.add(footR);
-
-  // Torso (massive rocky upper body)
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.55, 0.35), MAT.golemStone);
-  torso.position.y = 0.7;
-  torso.castShadow = true;
-  group.add(torso);
-
-  // Chest rock plates (layered stone texture)
-  const chestPlate = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.1), MAT.golemStoneDark);
-  chestPlate.position.set(0, 0.82, 0.2);
-  group.add(chestPlate);
-
-  // Shoulder rocks (bulky stone shoulders)
-  const shoulderL = new THREE.Mesh(new THREE.SphereGeometry(0.16, 8, 8), MAT.golemStoneLight);
-  shoulderL.position.set(-0.38, 0.9, 0);
-  shoulderL.castShadow = true;
-  group.add(shoulderL);
-  const shoulderR = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), MAT.golemStoneLight);
-  shoulderR.position.set(0.38, 0.92, 0);
-  shoulderR.castShadow = true;
-  group.add(shoulderR);
-
-  // Arms (thick stone arms)
-  const armL = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.4, 0.14), MAT.golemStone);
-  armL.position.set(-0.4, 0.6, 0.1);
-  armL.rotation.x = -0.3;
-  armL.rotation.z = 0.15;
-  armL.castShadow = true;
-  group.add(armL);
-  const armR = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.4, 0.14), MAT.golemStone);
-  armR.position.set(0.4, 0.55, 0.15);
-  armR.rotation.x = -0.5;
-  armR.rotation.z = -0.1;
-  armR.castShadow = true;
-  group.add(armR);
-
-  // Right hand crystal sword blade
-  const blade = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5, 0.12), MAT.golemBlade);
-  blade.position.set(0.42, 0.2, 0.3);
-  blade.rotation.x = -0.8;
-  group.add(blade);
-  // Blade tip
-  const bladeTip = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.15, 4), MAT.golemBlade);
-  bladeTip.position.set(0.42, 0.02, 0.42);
-  bladeTip.rotation.x = -0.8;
-  group.add(bladeTip);
-  // Sword handle
-  const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.15, 6), MAT.golemBladeHandle);
-  handle.position.set(0.42, 0.38, 0.2);
-  handle.rotation.x = -0.8;
-  group.add(handle);
-
-  // Head (angular rocky head)
-  const head = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.22, 0.22), MAT.golemStoneDark);
-  head.position.set(0, 1.15, 0.03);
-  head.rotation.y = 0.1;
-  head.castShadow = true;
-  group.add(head);
-  // Jaw / lower face
-  const jaw = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.08, 0.15), MAT.golemStone);
-  jaw.position.set(0, 1.02, 0.1);
-  group.add(jaw);
-
-  // Glowing cyan eyes
-  const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), MAT.golemEye);
-  eyeL.position.set(-0.06, 1.18, 0.12);
-  group.add(eyeL);
-  const eyeR = eyeL.clone();
-  eyeR.position.set(0.06, 1.18, 0.12);
-  group.add(eyeR);
-
-  // Glowing mouth slit
-  const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.02, 0.02), MAT.golemMouth);
-  mouth.position.set(0, 1.06, 0.13);
-  group.add(mouth);
-
-  // Crystal spikes on head (crown-like)
-  for (let i = 0; i < 3; i++) {
-    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.1 + i * 0.02, 4), MAT.golemCrystal);
-    const angle = (i / 3) * Math.PI - Math.PI * 0.25;
-    spike.position.set(Math.cos(angle) * 0.1, 1.3, Math.sin(angle) * 0.06);
-    group.add(spike);
+  if (modelData && modelData.model) {
+    const clone = cloneKayKitModel(chosen, 0.6);
+    if (clone) {
+      group.add(clone);
+      // Try to play animation
+      if (modelData.animations && modelData.animations.length > 0) {
+        const mixer = new THREE.AnimationMixer(clone);
+        const idleClip = modelData.animations.find(function(a) { return a.name.toLowerCase().includes('idle'); }) || modelData.animations[0];
+        if (idleClip) mixer.clipAction(idleClip).play();
+        group.userData.mixer = mixer;
+      }
+    }
+  } else {
+    // Fallback: dark skeleton-like figure
+    const boneMat = new THREE.MeshStandardMaterial({ color: 0xd4c5a0, roughness: 0.7 });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x2a2a2a });
+    // Body
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.5, 0.2), boneMat);
+    body.position.y = 0.7; body.castShadow = true; group.add(body);
+    // Head (skull)
+    const skull = new THREE.Mesh(new THREE.SphereGeometry(0.15, 8, 8), boneMat);
+    skull.position.y = 1.15; skull.castShadow = true; group.add(skull);
+    // Eyes
+    const eyeMat = new THREE.MeshBasicMaterial({ color: 0xff3300 });
+    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.03, 6, 6), eyeMat);
+    eyeL.position.set(-0.05, 1.18, 0.12); group.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.set(0.05, 1.18, 0.12); group.add(eyeR);
+    // Arms
+    const armL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.35, 0.08), boneMat);
+    armL.position.set(-0.22, 0.65, 0.1); armL.rotation.x = -0.5; group.add(armL);
+    const armR = armL.clone(); armR.position.set(0.22, 0.7, 0.08); group.add(armR);
+    // Legs
+    const legL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.35, 0.1), darkMat);
+    legL.position.set(-0.08, 0.2, 0); group.add(legL);
+    const legR = legL.clone(); legR.position.set(0.08, 0.2, 0); group.add(legR);
   }
-
-  // Crystal embedded in chest/belly (glowing core)
-  const crystalCore = new THREE.Mesh(new THREE.OctahedronGeometry(0.06, 0), MAT.golemCrystal);
-  crystalCore.position.set(0.05, 0.65, 0.2);
-  crystalCore.rotation.y = Math.PI / 4;
-  group.add(crystalCore);
-
-  // Crystal glow aura around core
-  const coreGlow = new THREE.Mesh(new THREE.SphereGeometry(0.09, 8, 8), MAT.golemCrystalGlow);
-  coreGlow.position.set(0.05, 0.65, 0.2);
-  group.add(coreGlow);
 
   // HP label
   const canvas = document.createElement('canvas');
   canvas.width = 128; canvas.height = 64;
   const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#00e5ff';
+  ctx.fillStyle = '#ff4444';
   ctx.font = 'bold 36px Arial';
   ctx.textAlign = 'center';
-  ctx.fillText(`HP ${data.health}`, 64, 45);
+  ctx.fillText('HP ' + data.health, 64, 45);
   const tex = new THREE.CanvasTexture(canvas);
   const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex }));
   sprite.scale.set(1.0, 0.5, 1);
-  sprite.position.y = 1.6;
+  sprite.position.y = 1.7;
   group.add(sprite);
 
   group.position.set(data.x, 0, data.z);
@@ -1239,238 +1228,114 @@ function createBoss3D(bossData) {
   const bossType = bossData.type;
   const group = new THREE.Group();
 
-  // All bosses are now Stone Golem variants with different crystal colors and sizes
-  // Pick crystal material based on boss type
-  let crystalMat = MAT.bossGolemCrystal;   // default cyan-green
-  let eyeMat = MAT.bossGolemEye;
-  let scaleFactor = 1.0;
-  let extraFeature = 'none';
+  // Determine which skeleton model and scale to use per boss type
+  let modelName = 'skeleton_warrior';
+  let bossScale = 1.5;
+  let lightColor = null;
+  let lightIntensity = 0;
 
   if (bossType === 'zombie_boss') {
-    crystalMat = MAT.bossGolemCrystal;
-    scaleFactor = 1.0;
-    extraFeature = 'none';
+    modelName = 'skeleton_warrior';
+    bossScale = 1.5;
   } else if (bossType === 'zombie_king') {
-    crystalMat = MAT.bossGolemCrystal;
-    scaleFactor = 1.15;
-    extraFeature = 'crown';
+    modelName = 'skeleton_warrior';
+    bossScale = 1.8;
   } else if (bossType === 'fire_demon') {
-    crystalMat = MAT.bossFireCrystal;
-    eyeMat = new THREE.MeshBasicMaterial({ color: 0xff6600 });
-    scaleFactor = 1.2;
-    extraFeature = 'fire_aura';
+    modelName = 'skeleton_mage';
+    bossScale = 2.0;
+    lightColor = 0xff4400;
+    lightIntensity = 3;
   } else if (bossType === 'shadow_lord') {
-    crystalMat = MAT.bossShadowCrystal;
-    eyeMat = new THREE.MeshBasicMaterial({ color: 0xaa00ff });
-    scaleFactor = 1.25;
-    extraFeature = 'shadow_orbs';
+    modelName = 'skeleton_mage';
+    bossScale = 2.2;
+    lightColor = 0xaa00ff;
+    lightIntensity = 3;
   } else if (bossType === 'dragon_king' || bossType === 'dark_knight') {
-    crystalMat = MAT.bossDragonCrystal;
-    eyeMat = new THREE.MeshBasicMaterial({ color: 0xff0044 });
-    scaleFactor = 1.4;
-    extraFeature = 'mega_sword';
+    modelName = 'skeleton_warrior';
+    bossScale = 2.5;
+    lightColor = 0xff0044;
+    lightIntensity = 4;
   }
 
-  const s = scaleFactor;
+  const modelData = KAYKIT_MODELS[modelName];
 
-  // === GIANT STONE GOLEM BOSS ===
-
-  // Legs (dark stone pants)
-  const legL = new THREE.Mesh(new THREE.BoxGeometry(0.5 * s, 1.0 * s, 0.5 * s), MAT.golemPants);
-  legL.position.set(-0.4 * s, 0.5 * s, 0);
-  legL.castShadow = true;
-  group.add(legL);
-  const legR = new THREE.Mesh(new THREE.BoxGeometry(0.5 * s, 1.0 * s, 0.5 * s), MAT.golemPants);
-  legR.position.set(0.4 * s, 0.5 * s, 0);
-  legR.castShadow = true;
-  group.add(legR);
-
-  // Feet (massive stone)
-  const footL = new THREE.Mesh(new THREE.BoxGeometry(0.55 * s, 0.2 * s, 0.65 * s), MAT.golemStoneDark);
-  footL.position.set(-0.4 * s, 0.05, 0.05);
-  footL.castShadow = true;
-  group.add(footL);
-  const footR = new THREE.Mesh(new THREE.BoxGeometry(0.55 * s, 0.2 * s, 0.65 * s), MAT.golemStoneDark);
-  footR.position.set(0.4 * s, 0.05, 0.05);
-  footR.castShadow = true;
-  group.add(footR);
-
-  // Torso (massive rocky body)
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(1.6 * s, 1.6 * s, 1.0 * s), MAT.bossGolemStone);
-  torso.position.y = 1.8 * s;
-  torso.castShadow = true;
-  group.add(torso);
-
-  // Chest armor plates
-  const chestPlate1 = new THREE.Mesh(new THREE.BoxGeometry(1.4 * s, 0.4 * s, 0.2 * s), MAT.bossGolemArmor);
-  chestPlate1.position.set(0, 2.2 * s, 0.5 * s);
-  group.add(chestPlate1);
-  const chestPlate2 = new THREE.Mesh(new THREE.BoxGeometry(1.2 * s, 0.3 * s, 0.15 * s), MAT.golemStoneDark);
-  chestPlate2.position.set(0, 1.7 * s, 0.5 * s);
-  group.add(chestPlate2);
-
-  // Shoulders (huge boulder shoulders)
-  const shoulderL = new THREE.Mesh(new THREE.SphereGeometry(0.5 * s, 10, 10), MAT.golemStoneLight);
-  shoulderL.position.set(-1.0 * s, 2.4 * s, 0);
-  shoulderL.castShadow = true;
-  group.add(shoulderL);
-  const shoulderR = new THREE.Mesh(new THREE.SphereGeometry(0.55 * s, 10, 10), MAT.golemStoneLight);
-  shoulderR.position.set(1.0 * s, 2.5 * s, 0);
-  shoulderR.castShadow = true;
-  group.add(shoulderR);
-
-  // Crystal growths on left shoulder
-  for (let i = 0; i < 3; i++) {
-    const crystal = new THREE.Mesh(new THREE.ConeGeometry(0.08 * s, 0.3 * s, 4), crystalMat);
-    crystal.position.set(-1.0 * s + (i - 1) * 0.15 * s, 2.8 * s + i * 0.05, 0);
-    crystal.rotation.z = 0.3 + i * 0.15;
-    group.add(crystal);
+  if (modelData && modelData.model) {
+    const clone = cloneKayKitModel(modelName, bossScale);
+    if (clone) {
+      group.add(clone);
+      // Try to play animation
+      if (modelData.animations && modelData.animations.length > 0) {
+        const mixer = new THREE.AnimationMixer(clone);
+        const idleClip = modelData.animations.find(function(a) { return a.name.toLowerCase().includes('idle'); }) || modelData.animations[0];
+        if (idleClip) mixer.clipAction(idleClip).play();
+        group.userData.mixer = mixer;
+      }
+    }
+  } else {
+    // Fallback: large dark boss figure
+    const s = bossScale;
+    const bossMat = new THREE.MeshStandardMaterial({ color: 0x3a2a2a, roughness: 0.8 });
+    const boneMat = new THREE.MeshStandardMaterial({ color: 0xd4c5a0, roughness: 0.7 });
+    const eyeGlowMat = new THREE.MeshBasicMaterial({ color: lightColor || 0xff4400 });
+    // Body
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.6 * s, 1.0 * s, 0.4 * s), bossMat);
+    body.position.y = 1.2 * s; body.castShadow = true; group.add(body);
+    // Head
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.25 * s, 10, 10), boneMat);
+    head.position.y = 2.0 * s; head.castShadow = true; group.add(head);
+    // Eyes
+    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.05 * s, 6, 6), eyeGlowMat);
+    eyeL.position.set(-0.08 * s, 2.05 * s, 0.2 * s); group.add(eyeL);
+    const eyeR = eyeL.clone(); eyeR.position.set(0.08 * s, 2.05 * s, 0.2 * s); group.add(eyeR);
+    // Arms
+    const armL = new THREE.Mesh(new THREE.BoxGeometry(0.15 * s, 0.7 * s, 0.15 * s), bossMat);
+    armL.position.set(-0.45 * s, 1.1 * s, 0.1); armL.rotation.x = -0.4; group.add(armL);
+    const armR = armL.clone(); armR.position.set(0.45 * s, 1.1 * s, 0.1); group.add(armR);
+    // Legs
+    const legL = new THREE.Mesh(new THREE.BoxGeometry(0.18 * s, 0.6 * s, 0.18 * s), bossMat);
+    legL.position.set(-0.15 * s, 0.3 * s, 0); group.add(legL);
+    const legR = legL.clone(); legR.position.set(0.15 * s, 0.3 * s, 0); group.add(legR);
   }
 
-  // Arms (thick stone arms)
-  const armL = new THREE.Mesh(new THREE.BoxGeometry(0.4 * s, 1.2 * s, 0.4 * s), MAT.bossGolemStone);
-  armL.position.set(-1.1 * s, 1.5 * s, 0.2);
-  armL.rotation.x = -0.3;
-  armL.rotation.z = 0.15;
-  armL.castShadow = true;
-  group.add(armL);
-  const armR = new THREE.Mesh(new THREE.BoxGeometry(0.4 * s, 1.2 * s, 0.4 * s), MAT.bossGolemStone);
-  armR.position.set(1.1 * s, 1.3 * s, 0.3);
-  armR.rotation.x = -0.5;
-  armR.rotation.z = -0.1;
-  armR.castShadow = true;
-  group.add(armR);
+  // Add point light for special bosses
+  if (lightColor) {
+    const bossLight = new THREE.PointLight(lightColor, lightIntensity, 8);
+    bossLight.position.y = 1.5;
+    group.add(bossLight);
+  }
 
-  // Right hand - GIANT CRYSTAL SWORD
-  const bladeLen = 1.8 * s;
-  const blade = new THREE.Mesh(new THREE.BoxGeometry(0.15 * s, bladeLen, 0.3 * s), crystalMat);
-  blade.position.set(1.15 * s, 0.3 * s, 0.8);
-  blade.rotation.x = -0.7;
-  group.add(blade);
-  // Blade tip
-  const bladeTip = new THREE.Mesh(new THREE.ConeGeometry(0.15 * s, 0.4 * s, 4), crystalMat);
-  bladeTip.position.set(1.15 * s, -0.35 * s, 1.3);
-  bladeTip.rotation.x = -0.7;
-  group.add(bladeTip);
-  // Blade glow
-  const bladeGlow = new THREE.Mesh(new THREE.BoxGeometry(0.2 * s, bladeLen * 0.8, 0.35 * s),
-    new THREE.MeshBasicMaterial({ color: crystalMat.color, transparent: true, opacity: 0.25 }));
-  bladeGlow.position.copy(blade.position);
-  bladeGlow.rotation.copy(blade.rotation);
-  group.add(bladeGlow);
-  // Sword handle
-  const sHandle = new THREE.Mesh(new THREE.CylinderGeometry(0.06 * s, 0.06 * s, 0.4 * s, 6), MAT.golemBladeHandle);
-  sHandle.position.set(1.15 * s, 0.95 * s, 0.45);
-  sHandle.rotation.x = -0.7;
-  group.add(sHandle);
-  // Crossguard
-  const crossguard = new THREE.Mesh(new THREE.BoxGeometry(0.5 * s, 0.08 * s, 0.12 * s), MAT.golemBladeHandle);
-  crossguard.position.set(1.15 * s, 0.85 * s, 0.5);
-  group.add(crossguard);
-
-  // Head (angular rock head)
-  const head = new THREE.Mesh(new THREE.BoxGeometry(0.7 * s, 0.6 * s, 0.6 * s), MAT.golemStoneDark);
-  head.position.set(0, 3.0 * s, 0.1);
-  head.castShadow = true;
-  group.add(head);
-  // Lower jaw
-  const bJaw = new THREE.Mesh(new THREE.BoxGeometry(0.55 * s, 0.2 * s, 0.4 * s), MAT.bossGolemStone);
-  bJaw.position.set(0, 2.65 * s, 0.25);
-  group.add(bJaw);
-
-  // Glowing eyes
-  const bEyeGeo = new THREE.SphereGeometry(0.08 * s, 8, 8);
-  const bEyeL = new THREE.Mesh(bEyeGeo, eyeMat);
-  bEyeL.position.set(-0.18 * s, 3.1 * s, 0.32);
-  group.add(bEyeL);
-  const bEyeR = bEyeL.clone();
-  bEyeR.position.set(0.18 * s, 3.1 * s, 0.32);
-  group.add(bEyeR);
-
-  // Glowing mouth
-  const bMouth = new THREE.Mesh(new THREE.BoxGeometry(0.3 * s, 0.05 * s, 0.05 * s), eyeMat);
-  bMouth.position.set(0, 2.75 * s, 0.35);
-  group.add(bMouth);
-
-  // Crystal core in chest (glowing)
-  const coreSize = 0.2 * s;
-  const bCore = new THREE.Mesh(new THREE.OctahedronGeometry(coreSize, 0), crystalMat);
-  bCore.position.set(0, 1.9 * s, 0.55 * s);
-  bCore.rotation.y = Math.PI / 4;
-  group.add(bCore);
-  // Core glow
-  const bCoreGlow = new THREE.Mesh(new THREE.SphereGeometry(coreSize * 1.4, 10, 10),
-    new THREE.MeshBasicMaterial({ color: crystalMat.color, transparent: true, opacity: 0.35 }));
-  bCoreGlow.position.copy(bCore.position);
-  group.add(bCoreGlow);
-
-  // === EXTRA FEATURES PER BOSS TYPE ===
-
-  if (extraFeature === 'crown') {
-    // Crystal crown for zombie_king golem
+  // Add particle-like glow orbs for dragon_king / dark_knight
+  if (bossType === 'dragon_king' || bossType === 'dark_knight') {
     for (let i = 0; i < 6; i++) {
-      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.06 * s, 0.35 * s, 4), crystalMat);
+      const orb = new THREE.Mesh(
+        new THREE.SphereGeometry(0.1, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0xff0044, transparent: true, opacity: 0.6 })
+      );
       const angle = (i / 6) * Math.PI * 2;
-      spike.position.set(Math.cos(angle) * 0.3 * s, 3.4 * s, Math.sin(angle) * 0.25 * s + 0.1);
-      group.add(spike);
-    }
-  }
-
-  if (extraFeature === 'fire_aura') {
-    // Fire-colored crystal aura around body
-    const aura = new THREE.Mesh(new THREE.SphereGeometry(1.3 * s, 12, 12),
-      new THREE.MeshBasicMaterial({ color: 0xff4400, transparent: true, opacity: 0.15 }));
-    aura.position.y = 1.8 * s;
-    group.add(aura);
-    // Extra fire crystals on shoulders
-    for (let i = 0; i < 4; i++) {
-      const fc = new THREE.Mesh(new THREE.ConeGeometry(0.1 * s, 0.4 * s, 4), crystalMat);
-      const angle = (i / 4) * Math.PI * 2;
-      fc.position.set(Math.cos(angle) * 0.9 * s, 2.6 * s + Math.random() * 0.3, Math.sin(angle) * 0.7 * s);
-      fc.rotation.z = (Math.random() - 0.5) * 0.5;
-      group.add(fc);
-    }
-  }
-
-  if (extraFeature === 'shadow_orbs') {
-    // Floating purple crystal orbs around
-    for (let i = 0; i < 4; i++) {
-      const orb = new THREE.Mesh(new THREE.OctahedronGeometry(0.2 * s, 0), crystalMat);
-      const angle = (i / 4) * Math.PI * 2;
-      orb.position.set(Math.cos(angle) * 1.8 * s, 1.5 * s + i * 0.4 * s, Math.sin(angle) * 1.8 * s);
+      orb.position.set(Math.cos(angle) * 2.0, 1.0 + i * 0.3, Math.sin(angle) * 2.0);
       orb.userData.orbIndex = i;
       group.add(orb);
     }
-    // Dark mist around base
-    const mist = new THREE.Mesh(new THREE.CylinderGeometry(1.5 * s, 2.0 * s, 0.4, 16),
-      new THREE.MeshBasicMaterial({ color: 0x220044, transparent: true, opacity: 0.3 }));
+  }
+
+  // Shadow mist for shadow_lord
+  if (bossType === 'shadow_lord') {
+    const mist = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.0, 2.5, 0.4, 16),
+      new THREE.MeshBasicMaterial({ color: 0x220044, transparent: true, opacity: 0.3 })
+    );
     mist.position.y = 0.2;
     group.add(mist);
   }
 
-  if (extraFeature === 'mega_sword') {
-    // Even bigger second sword in left hand
-    const blade2 = new THREE.Mesh(new THREE.BoxGeometry(0.18 * s, 2.2 * s, 0.35 * s), crystalMat);
-    blade2.position.set(-1.15 * s, 0.2 * s, 0.7);
-    blade2.rotation.x = -0.6;
-    blade2.rotation.z = 0.2;
-    group.add(blade2);
-    const tip2 = new THREE.Mesh(new THREE.ConeGeometry(0.18 * s, 0.5 * s, 4), crystalMat);
-    tip2.position.set(-1.1 * s, -0.6 * s, 1.2);
-    tip2.rotation.x = -0.6;
-    group.add(tip2);
-    // Extra armor plates
-    const armorPlate = new THREE.Mesh(new THREE.BoxGeometry(1.8 * s, 0.2 * s, 1.2 * s), MAT.bossGolemArmor);
-    armorPlate.position.y = 1.0 * s;
-    group.add(armorPlate);
-  }
-
-  // Head crystal spikes (all boss types)
-  for (let i = 0; i < 4; i++) {
-    const hSpike = new THREE.Mesh(new THREE.ConeGeometry(0.05 * s, 0.2 * s + i * 0.03, 4), crystalMat);
-    const hAngle = (i / 4) * Math.PI - Math.PI * 0.3;
-    hSpike.position.set(Math.cos(hAngle) * 0.25 * s, 3.4 * s, Math.sin(hAngle) * 0.15 * s + 0.1);
-    group.add(hSpike);
+  // Fire aura for fire_demon
+  if (bossType === 'fire_demon') {
+    const aura = new THREE.Mesh(
+      new THREE.SphereGeometry(1.8, 12, 12),
+      new THREE.MeshBasicMaterial({ color: 0xff4400, transparent: true, opacity: 0.12 })
+    );
+    aura.position.y = 1.5;
+    group.add(aura);
   }
 
   group.position.set(0, 0, bossData.z);
@@ -1611,95 +1476,100 @@ class Game {
     sideR.receiveShadow = true;
     this.objects.add(sideR);
 
-    // === ENVIRONMENT: Trees, buildings, street lights ===
-    const treeTrunkMat = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
-    const treeLeafMat = new THREE.MeshLambertMaterial({ color: 0x228B22 });
-    const treeLeafDark = new THREE.MeshLambertMaterial({ color: 0x1a6b1a });
-    const buildingMats = [
-      new THREE.MeshLambertMaterial({ color: 0x607D8B }),
-      new THREE.MeshLambertMaterial({ color: 0x78909C }),
-      new THREE.MeshLambertMaterial({ color: 0x546E7A }),
-      new THREE.MeshLambertMaterial({ color: 0x455A64 }),
-    ];
-    const windowMat = new THREE.MeshBasicMaterial({ color: 0xffffcc });
-    const lampMat = new THREE.MeshLambertMaterial({ color: 0x333333 });
-    const lampGlowMat = new THREE.MeshBasicMaterial({ color: 0xffeeaa });
-
+    // === ENVIRONMENT: Dungeon columns, barrels, torches ===
     for (let z = 0; z < roadLength; z += 8) {
-      // Trees on both sides
+      // Dungeon columns on both sides of the road
       for (const side of [-1, 1]) {
-        const x = side * (5 + Math.random() * 3);
-        const tree = new THREE.Group();
-        // Trunk
-        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.15, 1.5, 6), treeTrunkMat);
-        trunk.position.y = 0.75;
-        trunk.castShadow = true;
-        tree.add(trunk);
-        // Foliage layers
-        const leafSize = 0.6 + Math.random() * 0.4;
-        const leaf1 = new THREE.Mesh(new THREE.SphereGeometry(leafSize, 8, 6), Math.random() > 0.5 ? treeLeafMat : treeLeafDark);
-        leaf1.position.y = 1.8;
-        leaf1.castShadow = true;
-        tree.add(leaf1);
-        const leaf2 = new THREE.Mesh(new THREE.SphereGeometry(leafSize * 0.7, 7, 5), treeLeafMat);
-        leaf2.position.set(0.2, 2.2, 0.1);
-        tree.add(leaf2);
-        tree.position.set(x, 0, z + Math.random() * 4);
-        this.objects.add(tree);
-      }
-
-      // Buildings further back (every other segment)
-      if (z % 16 === 0) {
-        for (const side of [-1, 1]) {
-          const x = side * (10 + Math.random() * 4);
-          const bldgH = 3 + Math.random() * 5;
-          const bldgW = 2 + Math.random() * 2;
-          const bldg = new THREE.Group();
-          const body = new THREE.Mesh(
-            new THREE.BoxGeometry(bldgW, bldgH, 2),
-            buildingMats[Math.floor(Math.random() * buildingMats.length)]
-          );
-          body.position.y = bldgH / 2;
-          body.castShadow = true;
-          body.receiveShadow = true;
-          bldg.add(body);
-          // Windows
-          const rows = Math.floor(bldgH / 1.2);
-          const cols = Math.floor(bldgW / 0.8);
-          for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-              if (Math.random() > 0.3) {
-                const win = new THREE.Mesh(new THREE.PlaneGeometry(0.3, 0.4), windowMat);
-                win.position.set(
-                  (c - (cols - 1) / 2) * 0.7,
-                  0.8 + r * 1.1,
-                  side > 0 ? -1.01 : 1.01
-                );
-                if (side > 0) win.rotation.y = Math.PI;
-                bldg.add(win);
-              }
-            }
-          }
-          bldg.position.set(x, 0, z + Math.random() * 8);
-          this.objects.add(bldg);
+        const colX = side * 4.5;
+        const colModel = cloneKayKitModel('column', 1.0);
+        if (colModel) {
+          colModel.position.set(colX, 0, z);
+          this.objects.add(colModel);
+        } else {
+          // Fallback: stone cylinder column
+          const col = new THREE.Group();
+          const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.3, 3.0, 8), MAT.dungeonColumn);
+          shaft.position.y = 1.5;
+          shaft.castShadow = true;
+          col.add(shaft);
+          const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.25, 0.2, 8), MAT.dungeonColumn);
+          cap.position.y = 3.05;
+          col.add(cap);
+          const base = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.2, 8), MAT.dungeonColumn);
+          base.position.y = 0.1;
+          col.add(base);
+          col.position.set(colX, 0, z);
+          this.objects.add(col);
         }
       }
 
-      // Street lights along road edges
+      // Torches on columns (every 12 units)
       if (z % 12 === 0) {
         for (const side of [-1, 1]) {
-          const lamp = new THREE.Group();
-          const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.05, 2.5, 6), lampMat);
-          pole.position.y = 1.25;
-          lamp.add(pole);
-          const arm = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.04), lampMat);
-          arm.position.set(side * -0.2, 2.5, 0);
-          lamp.add(arm);
-          const light = new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 6), lampGlowMat);
-          light.position.set(side * -0.4, 2.45, 0);
-          lamp.add(light);
-          lamp.position.set(side * 4.3, 0, z);
-          this.objects.add(lamp);
+          const torchX = side * 4.5;
+          const torchModel = cloneKayKitModel('torch_lit', 1.0);
+          if (torchModel) {
+            torchModel.position.set(torchX, 2.0, z);
+            this.objects.add(torchModel);
+          } else {
+            // Fallback: glowing sphere torch
+            const torch = new THREE.Group();
+            const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 6), new THREE.MeshLambertMaterial({ color: 0x4a3a2a }));
+            stick.position.y = 2.2;
+            torch.add(stick);
+            const flame = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 8), MAT.dungeonTorchGlow);
+            flame.position.y = 2.45;
+            torch.add(flame);
+            torch.position.set(torchX, 0, z);
+            this.objects.add(torch);
+          }
+          // Add warm point light at torch position
+          const torchLight = new THREE.PointLight(0xff8844, 1.5, 6);
+          torchLight.position.set(torchX, 2.5, z);
+          this.objects.add(torchLight);
+        }
+      }
+
+      // Scattered barrels along the sides
+      if (Math.random() > 0.5) {
+        const barrelSide = Math.random() > 0.5 ? -1 : 1;
+        const barrelX = barrelSide * (5.5 + Math.random() * 2);
+        const barrelZ = z + Math.random() * 6;
+        const barrelModel = cloneKayKitModel('barrel', 0.8);
+        if (barrelModel) {
+          barrelModel.position.set(barrelX, 0, barrelZ);
+          barrelModel.rotation.y = Math.random() * Math.PI * 2;
+          this.objects.add(barrelModel);
+        } else {
+          // Fallback: simple box barrel
+          const barrel = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.25, 0.28, 0.6, 8),
+            MAT.dungeonBarrel
+          );
+          barrel.position.set(barrelX, 0.3, barrelZ);
+          barrel.castShadow = true;
+          this.objects.add(barrel);
+        }
+      }
+
+      // Walls further back (every 16 units)
+      if (z % 16 === 0) {
+        for (const side of [-1, 1]) {
+          const wallX = side * (10 + Math.random() * 2);
+          const wallModel = cloneKayKitModel('wall', 1.2);
+          if (wallModel) {
+            wallModel.position.set(wallX, 0, z);
+            wallModel.rotation.y = side > 0 ? -Math.PI / 2 : Math.PI / 2;
+            this.objects.add(wallModel);
+          } else {
+            // Fallback: dark stone wall block
+            const wallMat = new THREE.MeshStandardMaterial({ color: 0x3a3a35, roughness: 0.95 });
+            const wall = new THREE.Mesh(new THREE.BoxGeometry(3, 4, 0.5), wallMat);
+            wall.position.set(wallX, 2, z + Math.random() * 8);
+            wall.castShadow = true;
+            wall.receiveShadow = true;
+            this.objects.add(wall);
+          }
         }
       }
     }
@@ -2061,6 +1931,18 @@ class Game {
       if (obj.userData.collected) return;
       if (obj.userData.mixer) obj.userData.mixer.update(dt);
     });
+
+    // Update enemy animation mixers (KayKit skeleton models)
+    this.obstacleObjects.forEach(obj => {
+      if (obj.userData.mixer && !obj.userData.collected) {
+        obj.userData.mixer.update(dt);
+      }
+    });
+
+    // Update boss animation mixer
+    if (this.bossObject && this.bossObject.userData.mixer) {
+      this.bossObject.userData.mixer.update(dt);
+    }
 
     if (!this.isBossFight) {
       this.playerZ += this.speed * dt;
@@ -2760,5 +2642,6 @@ if (loadingFill) loadingFill.style.width = '100%';
 if (loadingText) loadingText.textContent = '시작합니다...';
 setTimeout(startApp, 500);
 
-// Load 3D model in background (will be used when available)
+// Load 3D models in background (will be used when available)
 loadSoldierModelBackground();
+loadKayKitModels();
