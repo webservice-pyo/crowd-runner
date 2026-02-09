@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>서준이와 지노의 Crowd Runner</title>
+
+<!-- Open Graph -->
+<meta property="og:title" content="서준이와 지노의 Crowd Runner">
+<meta property="og:description" content="3D 크라우드 러너 액션 게임 - 동료를 모아 보스를 물리치자!">
+<meta property="og:type" content="website">
+<meta property="og:image" content="">
+
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 로딩 화면 -->
+<div id="loadingScreen">
+  <div class="loading-title">서준이와 지노의 Crowd Runner</div>
+  <div class="loading-bar-container">
+    <div class="loading-bar-fill"></div>
+  </div>
+  <div class="loading-text" id="loadingText">모델 로딩 중...</div>
+</div>
+
+<!-- 메인 메뉴 -->
+<div id="mainMenu" class="screen">
+  <div class="menu-top-bar">
+    <div class="level-display" id="menuLevel">Lv. 1</div>
+    <button class="btn-sound" id="btnSound">🔊</button>
+    <div class="coin-display" id="menuCoins">0 코인</div>
+  </div>
+  <div class="menu-particles" id="menuParticles"></div>
+  <div class="title animate-title">Crowd Runner</div>
+  <div class="subtitle animate-subtitle">서준이와 지노의</div>
+  <div class="stage-select-container animate-stage" id="stageSelectContainer">
+    <div class="stage-select-title">스테이지 선택</div>
+    <div class="stage-select-grid" id="stageSelectGrid"></div>
+  </div>
+  <button class="btn btn-upgrade animate-btn" id="btnUpgrade">강화하기</button>
+</div>
+
+<!-- 튜토리얼 오버레이 -->
+<div id="tutorial" class="screen">
+  <div class="tutorial-content">
+    <div class="tutorial-title">플레이 방법</div>
+    <div class="tutorial-steps">
+      <div class="tutorial-step">
+        <div class="tutorial-icon">👆</div>
+        <div class="tutorial-text">화면을 좌우로 드래그하여 이동</div>
+      </div>
+      <div class="tutorial-step">
+        <div class="tutorial-icon">👥</div>
+        <div class="tutorial-text">동료를 모아 군대를 키우세요</div>
+      </div>
+      <div class="tutorial-step">
+        <div class="tutorial-icon">⚔️</div>
+        <div class="tutorial-text">무기를 획득하고 보스를 물리치세요</div>
+      </div>
+      <div class="tutorial-step">
+        <div class="tutorial-icon">🚫</div>
+        <div class="tutorial-text">빨간 장애물과 좀비를 피하세요</div>
+      </div>
+    </div>
+    <button class="btn btn-play" id="btnTutorialOk">알겠어요!</button>
+  </div>
+</div>
+
+<!-- 스테이지 시작 연출 -->
+<div id="stageIntro" class="screen">
+  <div class="stage-intro-text" id="stageIntroText">스테이지 1</div>
+  <div class="stage-intro-name" id="stageIntroName">첫 번째 도전</div>
+</div>
+
+<!-- HUD -->
+<div id="hud">
+  <div class="hud-left">
+    <div class="ally-count" id="allyCount">5명</div>
+    <div class="weapon-display" id="weaponDisplay">주먹</div>
+  </div>
+  <div class="hud-right">
+    <div class="stage-indicator" id="stageIndicator">스테이지 1</div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 보스 체력바 -->
+<div id="bossHpBar">
+  <div class="boss-name" id="bossName">보스</div>
+  <div class="boss-hp-container">
+    <div class="boss-hp-fill" id="bossHpFill"></div>
+  </div>
+</div>
+
+<!-- 스테이지 클리어 -->
+<div id="stageComplete" class="screen">
+  <div class="victory-text">승리!</div>
+  <div class="stars" id="starsDisplay"></div>
+  <div class="reward-text" id="rewardText">+100 코인</div>
+  <button class="btn btn-next" id="btnNext">다음 스테이지</button>
+  <button class="btn btn-replay" id="btnReplay">다시 하기</button>
+  <button class="btn btn-menu" id="btnCompleteMenu">메인으로</button>
+</div>
+
+<!-- 스테이지 실패 -->
+<div id="stageFail" class="screen">
+  <div class="fail-text">실패!</div>
+  <div class="fail-reason" id="failReason">모든 동료가 쓰러졌습니다!</div>
+  <button class="btn btn-retry" id="btnRetry">재도전</button>
+  <button class="btn btn-menu" id="btnFailMenu">메인으로</button>
+</div>
+
+<!-- 강화 화면 -->
+<div id="upgradeScreen" class="screen">
+  <div class="upgrade-header">
+    <button class="btn-back" id="btnUpgradeBack">← 돌아가기</button>
+    <div class="upgrade-title">강화하기</div>
+    <div class="upgrade-coins" id="upgradeCoins">0 코인</div>
+  </div>
+  <div class="upgrade-list" id="upgradeList"></div>
+</div>
+
+<!-- 엔딩 크레딧 -->
+<div id="endingCredit" class="screen">
+  <div class="ending-container" id="endingContainer">
+    <div class="ending-congrats">축하합니다!</div>
+    <div class="ending-clear">모든 스테이지 클리어!</div>
+    <div class="ending-photo-frame">
+      <img id="endingPhoto" src="images/ending.jpg" alt="서준이와 지노" class="ending-photo">
+    </div>
+    <div class="ending-names">서준이 & 지노</div>
+    <div class="ending-message">
+      두 영웅이 모든 적을 물리치고<br>
+      세계를 구했습니다!
+    </div>
+    <div class="ending-credits">
+      <div class="credit-line">- CREDITS -</div>
+      <div class="credit-item">주인공: 서준이와 지노</div>
+      <div class="credit-item">게임 디자인: 서준 & 지노</div>
+      <div class="credit-item">개발: Claude AI</div>
+      <div class="credit-item">감사합니다!</div>
+    </div>
+    <div class="ending-stats" id="endingStats"></div>
+    <button class="btn btn-play" id="btnEndingMenu">메인으로 돌아가기</button>
+  </div>
+</div>
+
+<!-- 터치 영역 -->
+<div id="touchArea" style="display:none;"></div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script>
+// 모듈 로딩 실패 시 로딩 화면에서 벗어나기 위한 안전장치
+setTimeout(function() {
+  var ls = document.getElementById('loadingScreen');
+  if (ls && ls.style.display !== 'none') {
+    ls.querySelector('.loading-text').textContent = '로딩 시간이 오래 걸리고 있습니다. 페이지를 새로고침 해주세요.';
+  }
+}, 15000);
+</script>
+<script type="module" src="js/game.js?v=2"></script>
+</body>
+</html>
