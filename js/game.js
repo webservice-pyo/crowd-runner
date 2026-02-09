@@ -771,7 +771,7 @@ const STAGES = [
     rewards: { coins: 1000 }
   },
   {
-    id: 10, name: "최종 결전 - 서준이와 지노의 승리", length: 200,
+    id: 10, name: "1부 완결 - 어둠의 끝", length: 200,
     enemies: [
       { type: "red_box", x: 0, z: 15, damage: 15 },
       { type: "red_box", x: -2, z: 25, damage: 18 },
@@ -807,17 +807,425 @@ const STAGES = [
       { type: "multiply", z: 155, value: 2, lane: -1.5 },
       { type: "add", z: 155, value: 25, lane: 1.5 },
     ],
-    boss: { type: "dragon_king", nameKo: "최종 보스 - 파멸의 용왕", z: 195, health: 6000 },
+    boss: { type: "dragon_king", nameKo: "파멸의 용왕", z: 195, health: 6000 },
     rewards: { coins: 2000 }
+  },
+  // ========== 2부: 지옥 난이도 (스테이지 11~20) ==========
+  {
+    id: 11, name: "지옥의 서막", length: 220,
+    enemies: [
+      { type: "red_box", x: 0, z: 15, damage: 20 },
+      { type: "red_box", x: -2, z: 25, damage: 25 },
+      { type: "red_box", x: 2, z: 38, damage: 22 },
+      { type: "red_box", x: 1, z: 52, damage: 28 },
+      { type: "red_box", x: -1, z: 68, damage: 25 },
+      { type: "red_box", x: 0, z: 82, damage: 30 },
+      { type: "zombie", x: -1, z: 35, health: 150 },
+      { type: "zombie", x: 1, z: 48, health: 160 },
+      { type: "zombie", x: 0, z: 62, health: 180 },
+      { type: "zombie", x: 2, z: 78, health: 170 },
+      { type: "zombie", x: -2, z: 95, health: 200 },
+    ],
+    collectibles: [
+      { type: "ally", x: 0, z: 8 }, { type: "ally", x: -1, z: 14 },
+      { type: "ally", x: 1, z: 20 }, { type: "ally", x: -2, z: 30 },
+      { type: "ally", x: 2, z: 42 }, { type: "ally", x: 0, z: 55 },
+      { type: "ally", x: -1, z: 65 }, { type: "ally", x: 1, z: 75 },
+      { type: "ally", x: 0, z: 88 }, { type: "ally", x: 2, z: 100 },
+      { type: "coin", x: 1, z: 22, value: 40 }, { type: "coin", x: -1, z: 58, value: 50 },
+      { type: "coin", x: 0, z: 85, value: 50 },
+      { type: "weapon", x: 0, z: 45, weapon: "shotgun" },
+      { type: "weapon", x: -1, z: 90, weapon: "rocket" },
+    ],
+    gates: [
+      { type: "multiply", z: 120, value: 2, lane: -1.5 },
+      { type: "add", z: 120, value: 15, lane: 1.5 },
+    ],
+    boss: { type: "fire_demon", nameKo: "지옥의 문지기", z: 215, health: 8000 },
+    rewards: { coins: 2500 }
+  },
+  {
+    id: 12, name: "피의 강", length: 230,
+    enemies: [
+      { type: "red_box", x: -1, z: 15, damage: 22 },
+      { type: "red_box", x: 1, z: 28, damage: 26 },
+      { type: "red_box", x: 0, z: 42, damage: 30 },
+      { type: "red_box", x: -2, z: 58, damage: 24 },
+      { type: "red_box", x: 2, z: 72, damage: 28 },
+      { type: "red_box", x: 0, z: 88, damage: 32 },
+      { type: "red_box", x: -1, z: 105, damage: 26 },
+      { type: "zombie", x: 0, z: 35, health: 180 },
+      { type: "zombie", x: 2, z: 50, health: 200 },
+      { type: "zombie", x: -2, z: 65, health: 190 },
+      { type: "zombie", x: 1, z: 82, health: 220 },
+      { type: "zombie", x: -1, z: 100, health: 250 },
+    ],
+    collectibles: [
+      { type: "ally", x: 0, z: 8 }, { type: "ally", x: 1, z: 14 },
+      { type: "ally", x: -1, z: 22 }, { type: "ally", x: 2, z: 32 },
+      { type: "ally", x: -2, z: 45 }, { type: "ally", x: 0, z: 55 },
+      { type: "ally", x: 1, z: 68 }, { type: "ally", x: -1, z: 78 },
+      { type: "ally", x: 0, z: 92 }, { type: "ally", x: 2, z: 108 },
+      { type: "coin", x: -1, z: 25, value: 45 }, { type: "coin", x: 1, z: 62, value: 55 },
+      { type: "coin", x: 0, z: 95, value: 55 },
+      { type: "weapon", x: -2, z: 40, weapon: "shotgun" },
+      { type: "weapon", x: 1, z: 95, weapon: "rocket" },
+    ],
+    gates: [
+      { type: "multiply", z: 130, value: 2, lane: -1.5 },
+      { type: "add", z: 130, value: 18, lane: 1.5 },
+    ],
+    boss: { type: "shadow_lord", nameKo: "피의 군주", z: 225, health: 10000 },
+    rewards: { coins: 3000 }
+  },
+  {
+    id: 13, name: "뼈의 미궁", length: 240,
+    enemies: [
+      { type: "red_box", x: 0, z: 12, damage: 25 },
+      { type: "red_box", x: -2, z: 22, damage: 28 },
+      { type: "red_box", x: 2, z: 35, damage: 32 },
+      { type: "red_box", x: -1, z: 48, damage: 26 },
+      { type: "red_box", x: 1, z: 62, damage: 30 },
+      { type: "red_box", x: 0, z: 78, damage: 35 },
+      { type: "red_box", x: -2, z: 95, damage: 28 },
+      { type: "red_box", x: 2, z: 110, damage: 33 },
+      { type: "zombie", x: 1, z: 30, health: 200 },
+      { type: "zombie", x: -1, z: 45, health: 230 },
+      { type: "zombie", x: 0, z: 58, health: 250 },
+      { type: "zombie", x: 2, z: 72, health: 240 },
+      { type: "zombie", x: -2, z: 90, health: 280 },
+      { type: "zombie", x: 0, z: 108, health: 300 },
+    ],
+    collectibles: [
+      { type: "ally", x: -1, z: 6 }, { type: "ally", x: 1, z: 10 },
+      { type: "ally", x: 0, z: 18 }, { type: "ally", x: -2, z: 28 },
+      { type: "ally", x: 2, z: 38 }, { type: "ally", x: 0, z: 50 },
+      { type: "ally", x: -1, z: 60 }, { type: "ally", x: 1, z: 70 },
+      { type: "ally", x: 0, z: 82 }, { type: "ally", x: -2, z: 98 },
+      { type: "ally", x: 2, z: 112 },
+      { type: "coin", x: 0, z: 25, value: 50 }, { type: "coin", x: -1, z: 65, value: 60 },
+      { type: "coin", x: 2, z: 100, value: 60 },
+      { type: "weapon", x: 1, z: 42, weapon: "shotgun" },
+      { type: "weapon", x: -1, z: 105, weapon: "rocket" },
+    ],
+    gates: [
+      { type: "multiply", z: 135, value: 2, lane: -1.5 },
+      { type: "add", z: 135, value: 20, lane: 1.5 },
+    ],
+    boss: { type: "zombie_king", nameKo: "해골 군왕", z: 235, health: 13000 },
+    rewards: { coins: 3500 }
+  },
+  {
+    id: 14, name: "용암의 심장", length: 250,
+    enemies: [
+      { type: "red_box", x: 1, z: 15, damage: 28 },
+      { type: "red_box", x: -1, z: 28, damage: 32 },
+      { type: "red_box", x: 0, z: 42, damage: 35 },
+      { type: "red_box", x: 2, z: 55, damage: 30 },
+      { type: "red_box", x: -2, z: 70, damage: 38 },
+      { type: "red_box", x: 0, z: 85, damage: 32 },
+      { type: "red_box", x: -1, z: 100, damage: 36 },
+      { type: "red_box", x: 1, z: 115, damage: 40 },
+      { type: "zombie", x: -1, z: 35, health: 250 },
+      { type: "zombie", x: 1, z: 50, health: 280 },
+      { type: "zombie", x: 0, z: 65, health: 300 },
+      { type: "zombie", x: 2, z: 80, health: 280 },
+      { type: "zombie", x: -2, z: 95, health: 320 },
+      { type: "zombie", x: 0, z: 112, health: 350 },
+    ],
+    collectibles: [
+      { type: "ally", x: 0, z: 6 }, { type: "ally", x: -1, z: 12 },
+      { type: "ally", x: 1, z: 20 }, { type: "ally", x: -2, z: 30 },
+      { type: "ally", x: 2, z: 40 }, { type: "ally", x: 0, z: 52 },
+      { type: "ally", x: -1, z: 62 }, { type: "ally", x: 1, z: 72 },
+      { type: "ally", x: 0, z: 88 }, { type: "ally", x: -2, z: 102 },
+      { type: "ally", x: 2, z: 118 },
+      { type: "coin", x: 1, z: 25, value: 55 }, { type: "coin", x: -1, z: 68, value: 65 },
+      { type: "coin", x: 0, z: 105, value: 65 },
+      { type: "weapon", x: -1, z: 38, weapon: "shotgun" },
+      { type: "weapon", x: 0, z: 108, weapon: "rocket" },
+    ],
+    gates: [
+      { type: "add", z: 140, value: 20, lane: -1.5 },
+      { type: "multiply", z: 140, value: 2, lane: 1.5 },
+    ],
+    boss: { type: "fire_demon", nameKo: "용암의 제왕", z: 245, health: 16000 },
+    rewards: { coins: 4000 }
+  },
+  {
+    id: 15, name: "절망의 회랑", length: 260,
+    enemies: [
+      { type: "red_box", x: -1, z: 12, damage: 30 },
+      { type: "red_box", x: 1, z: 25, damage: 35 },
+      { type: "red_box", x: 0, z: 38, damage: 38 },
+      { type: "red_box", x: -2, z: 52, damage: 32 },
+      { type: "red_box", x: 2, z: 65, damage: 40 },
+      { type: "red_box", x: 0, z: 80, damage: 35 },
+      { type: "red_box", x: -1, z: 95, damage: 42 },
+      { type: "red_box", x: 1, z: 112, damage: 38 },
+      { type: "red_box", x: 0, z: 128, damage: 45 },
+      { type: "zombie", x: 0, z: 30, health: 300 },
+      { type: "zombie", x: -2, z: 45, health: 320 },
+      { type: "zombie", x: 2, z: 58, health: 350 },
+      { type: "zombie", x: -1, z: 72, health: 330 },
+      { type: "zombie", x: 1, z: 88, health: 380 },
+      { type: "zombie", x: 0, z: 105, health: 400 },
+      { type: "zombie", x: -2, z: 122, health: 350 },
+    ],
+    collectibles: [
+      { type: "ally", x: 0, z: 6 }, { type: "ally", x: -1, z: 10 },
+      { type: "ally", x: 1, z: 16 }, { type: "ally", x: -2, z: 22 },
+      { type: "ally", x: 2, z: 32 }, { type: "ally", x: 0, z: 42 },
+      { type: "ally", x: -1, z: 55 }, { type: "ally", x: 1, z: 68 },
+      { type: "ally", x: 0, z: 82 }, { type: "ally", x: -2, z: 98 },
+      { type: "ally", x: 2, z: 115 }, { type: "ally", x: 0, z: 130 },
+      { type: "coin", x: 1, z: 20, value: 60 }, { type: "coin", x: -1, z: 60, value: 70 },
+      { type: "coin", x: 0, z: 100, value: 75 }, { type: "coin", x: 2, z: 125, value: 80 },
+      { type: "weapon", x: -1, z: 35, weapon: "gun" },
+      { type: "weapon", x: 0, z: 75, weapon: "shotgun" },
+      { type: "weapon", x: 1, z: 120, weapon: "rocket" },
+    ],
+    gates: [
+      { type: "multiply", z: 145, value: 2, lane: -1.5 },
+      { type: "add", z: 145, value: 22, lane: 1.5 },
+      { type: "multiply", z: 175, value: 2, lane: 0 },
+    ],
+    boss: { type: "dragon_king", nameKo: "절망의 용", z: 255, health: 20000 },
+    rewards: { coins: 5000 }
+  },
+  {
+    id: 16, name: "영혼의 감옥", length: 270,
+    enemies: [
+      { type: "red_box", x: 0, z: 12, damage: 32 },
+      { type: "red_box", x: -2, z: 25, damage: 38 },
+      { type: "red_box", x: 2, z: 40, damage: 42 },
+      { type: "red_box", x: -1, z: 55, damage: 35 },
+      { type: "red_box", x: 1, z: 70, damage: 45 },
+      { type: "red_box", x: 0, z: 88, damage: 40 },
+      { type: "red_box", x: -2, z: 105, damage: 48 },
+      { type: "red_box", x: 2, z: 120, damage: 42 },
+      { type: "zombie", x: 1, z: 28, health: 350 },
+      { type: "zombie", x: -1, z: 42, health: 380 },
+      { type: "zombie", x: 0, z: 58, health: 400 },
+      { type: "zombie", x: 2, z: 72, health: 380 },
+      { type: "zombie", x: -2, z: 88, health: 420 },
+      { type: "zombie", x: 0, z: 105, health: 450 },
+      { type: "zombie", x: 1, z: 118, health: 400 },
+    ],
+    collectibles: [
+      { type: "ally", x: 0, z: 6 }, { type: "ally", x: -1, z: 10 },
+      { type: "ally", x: 1, z: 18 }, { type: "ally", x: -2, z: 28 },
+      { type: "ally", x: 2, z: 38 }, { type: "ally", x: 0, z: 48 },
+      { type: "ally", x: -1, z: 60 }, { type: "ally", x: 1, z: 72 },
+      { type: "ally", x: 0, z: 85 }, { type: "ally", x: -2, z: 100 },
+      { type: "ally", x: 2, z: 115 }, { type: "ally", x: 0, z: 125 },
+      { type: "coin", x: -1, z: 22, value: 65 }, { type: "coin", x: 1, z: 65, value: 80 },
+      { type: "coin", x: 0, z: 108, value: 85 },
+      { type: "weapon", x: 0, z: 35, weapon: "shotgun" },
+      { type: "weapon", x: -1, z: 100, weapon: "rocket" },
+    ],
+    gates: [
+      { type: "multiply", z: 150, value: 2, lane: -1.5 },
+      { type: "add", z: 150, value: 25, lane: 1.5 },
+    ],
+    boss: { type: "shadow_lord", nameKo: "영혼 포식자", z: 265, health: 25000 },
+    rewards: { coins: 6000 }
+  },
+  {
+    id: 17, name: "파멸의 제단", length: 280,
+    enemies: [
+      { type: "red_box", x: -1, z: 10, damage: 35 },
+      { type: "red_box", x: 1, z: 22, damage: 40 },
+      { type: "red_box", x: 0, z: 35, damage: 45 },
+      { type: "red_box", x: -2, z: 48, damage: 38 },
+      { type: "red_box", x: 2, z: 62, damage: 48 },
+      { type: "red_box", x: 0, z: 78, damage: 42 },
+      { type: "red_box", x: -1, z: 95, damage: 50 },
+      { type: "red_box", x: 1, z: 112, damage: 45 },
+      { type: "red_box", x: 0, z: 128, damage: 52 },
+      { type: "zombie", x: 0, z: 25, health: 400 },
+      { type: "zombie", x: -2, z: 40, health: 430 },
+      { type: "zombie", x: 2, z: 55, health: 450 },
+      { type: "zombie", x: -1, z: 70, health: 430 },
+      { type: "zombie", x: 1, z: 85, health: 480 },
+      { type: "zombie", x: 0, z: 100, health: 500 },
+      { type: "zombie", x: -2, z: 115, health: 450 },
+      { type: "zombie", x: 2, z: 130, health: 520 },
+    ],
+    collectibles: [
+      { type: "ally", x: 0, z: 5 }, { type: "ally", x: -1, z: 10 },
+      { type: "ally", x: 1, z: 16 }, { type: "ally", x: -2, z: 24 },
+      { type: "ally", x: 2, z: 32 }, { type: "ally", x: 0, z: 42 },
+      { type: "ally", x: -1, z: 52 }, { type: "ally", x: 1, z: 65 },
+      { type: "ally", x: 0, z: 80 }, { type: "ally", x: -2, z: 95 },
+      { type: "ally", x: 2, z: 110 }, { type: "ally", x: 0, z: 125 },
+      { type: "coin", x: 1, z: 20, value: 70 }, { type: "coin", x: -1, z: 60, value: 85 },
+      { type: "coin", x: 0, z: 105, value: 90 }, { type: "coin", x: -2, z: 130, value: 100 },
+      { type: "weapon", x: -1, z: 30, weapon: "gun" },
+      { type: "weapon", x: 0, z: 72, weapon: "shotgun" },
+      { type: "weapon", x: 1, z: 118, weapon: "rocket" },
+    ],
+    gates: [
+      { type: "multiply", z: 155, value: 2, lane: -1.5 },
+      { type: "add", z: 155, value: 25, lane: 1.5 },
+      { type: "multiply", z: 190, value: 2, lane: 0 },
+    ],
+    boss: { type: "dark_knight", nameKo: "파멸의 기사왕", z: 275, health: 30000 },
+    rewards: { coins: 7000 }
+  },
+  {
+    id: 18, name: "시간의 균열", length: 290,
+    enemies: [
+      { type: "red_box", x: 0, z: 10, damage: 38 },
+      { type: "red_box", x: -2, z: 22, damage: 45 },
+      { type: "red_box", x: 2, z: 35, damage: 48 },
+      { type: "red_box", x: -1, z: 50, damage: 42 },
+      { type: "red_box", x: 1, z: 65, damage: 50 },
+      { type: "red_box", x: 0, z: 80, damage: 45 },
+      { type: "red_box", x: -2, z: 95, damage: 55 },
+      { type: "red_box", x: 2, z: 112, damage: 48 },
+      { type: "red_box", x: 0, z: 130, damage: 55 },
+      { type: "zombie", x: 1, z: 28, health: 450 },
+      { type: "zombie", x: -1, z: 42, health: 480 },
+      { type: "zombie", x: 0, z: 55, health: 500 },
+      { type: "zombie", x: 2, z: 70, health: 480 },
+      { type: "zombie", x: -2, z: 85, health: 530 },
+      { type: "zombie", x: 0, z: 100, health: 550 },
+      { type: "zombie", x: -1, z: 115, health: 500 },
+      { type: "zombie", x: 1, z: 132, health: 580 },
+    ],
+    collectibles: [
+      { type: "ally", x: 0, z: 5 }, { type: "ally", x: -1, z: 10 },
+      { type: "ally", x: 1, z: 16 }, { type: "ally", x: -2, z: 25 },
+      { type: "ally", x: 2, z: 35 }, { type: "ally", x: 0, z: 45 },
+      { type: "ally", x: -1, z: 58 }, { type: "ally", x: 1, z: 68 },
+      { type: "ally", x: 0, z: 82 }, { type: "ally", x: -2, z: 98 },
+      { type: "ally", x: 2, z: 115 }, { type: "ally", x: 0, z: 130 },
+      { type: "coin", x: -1, z: 22, value: 80 }, { type: "coin", x: 1, z: 62, value: 95 },
+      { type: "coin", x: 0, z: 108, value: 100 }, { type: "coin", x: 2, z: 135, value: 110 },
+      { type: "weapon", x: 0, z: 32, weapon: "shotgun" },
+      { type: "weapon", x: -1, z: 88, weapon: "rocket" },
+      { type: "weapon", x: 1, z: 125, weapon: "rocket" },
+    ],
+    gates: [
+      { type: "multiply", z: 160, value: 2, lane: -1.5 },
+      { type: "add", z: 160, value: 28, lane: 1.5 },
+      { type: "multiply", z: 200, value: 2, lane: -1.5 },
+      { type: "add", z: 200, value: 30, lane: 1.5 },
+    ],
+    boss: { type: "fire_demon", nameKo: "시간의 파괴자", z: 285, health: 38000 },
+    rewards: { coins: 8000 }
+  },
+  {
+    id: 19, name: "종말의 문", length: 300,
+    enemies: [
+      { type: "red_box", x: -1, z: 10, damage: 40 },
+      { type: "red_box", x: 1, z: 22, damage: 48 },
+      { type: "red_box", x: 0, z: 35, damage: 52 },
+      { type: "red_box", x: -2, z: 48, damage: 45 },
+      { type: "red_box", x: 2, z: 62, damage: 55 },
+      { type: "red_box", x: 0, z: 78, damage: 50 },
+      { type: "red_box", x: -1, z: 95, damage: 58 },
+      { type: "red_box", x: 1, z: 112, damage: 52 },
+      { type: "red_box", x: 0, z: 130, damage: 60 },
+      { type: "red_box", x: -2, z: 148, damage: 55 },
+      { type: "zombie", x: 0, z: 25, health: 500 },
+      { type: "zombie", x: -2, z: 38, health: 530 },
+      { type: "zombie", x: 2, z: 52, health: 550 },
+      { type: "zombie", x: -1, z: 68, health: 530 },
+      { type: "zombie", x: 1, z: 82, health: 580 },
+      { type: "zombie", x: 0, z: 98, health: 600 },
+      { type: "zombie", x: -2, z: 115, health: 550 },
+      { type: "zombie", x: 2, z: 132, health: 620 },
+      { type: "zombie", x: 0, z: 150, health: 650 },
+    ],
+    collectibles: [
+      { type: "ally", x: 0, z: 5 }, { type: "ally", x: -1, z: 10 },
+      { type: "ally", x: 1, z: 16 }, { type: "ally", x: -2, z: 24 },
+      { type: "ally", x: 2, z: 32 }, { type: "ally", x: 0, z: 42 },
+      { type: "ally", x: -1, z: 55 }, { type: "ally", x: 1, z: 65 },
+      { type: "ally", x: 0, z: 78 }, { type: "ally", x: -2, z: 92 },
+      { type: "ally", x: 2, z: 108 }, { type: "ally", x: 0, z: 125 },
+      { type: "ally", x: -1, z: 140 }, { type: "ally", x: 1, z: 155 },
+      { type: "coin", x: 1, z: 20, value: 90 }, { type: "coin", x: -1, z: 58, value: 105 },
+      { type: "coin", x: 0, z: 100, value: 110 }, { type: "coin", x: 2, z: 138, value: 120 },
+      { type: "coin", x: -2, z: 155, value: 130 },
+      { type: "weapon", x: 0, z: 30, weapon: "shotgun" },
+      { type: "weapon", x: -1, z: 85, weapon: "rocket" },
+      { type: "weapon", x: 1, z: 140, weapon: "rocket" },
+    ],
+    gates: [
+      { type: "multiply", z: 170, value: 2, lane: -1.5 },
+      { type: "add", z: 170, value: 30, lane: 1.5 },
+      { type: "multiply", z: 210, value: 2, lane: -1.5 },
+      { type: "add", z: 210, value: 35, lane: 1.5 },
+    ],
+    boss: { type: "shadow_lord", nameKo: "종말의 예언자", z: 295, health: 48000 },
+    rewards: { coins: 10000 }
+  },
+  {
+    id: 20, name: "최종 결전 - 서준이와 지노의 승리", length: 320,
+    enemies: [
+      { type: "red_box", x: 0, z: 10, damage: 45 },
+      { type: "red_box", x: -2, z: 22, damage: 50 },
+      { type: "red_box", x: 2, z: 35, damage: 55 },
+      { type: "red_box", x: -1, z: 48, damage: 48 },
+      { type: "red_box", x: 1, z: 62, damage: 58 },
+      { type: "red_box", x: 0, z: 78, damage: 52 },
+      { type: "red_box", x: -2, z: 95, damage: 60 },
+      { type: "red_box", x: 2, z: 112, damage: 55 },
+      { type: "red_box", x: 0, z: 130, damage: 65 },
+      { type: "red_box", x: -1, z: 148, damage: 58 },
+      { type: "red_box", x: 1, z: 165, damage: 70 },
+      { type: "zombie", x: -1, z: 25, health: 550 },
+      { type: "zombie", x: 1, z: 38, health: 580 },
+      { type: "zombie", x: 0, z: 52, health: 600 },
+      { type: "zombie", x: 2, z: 68, health: 580 },
+      { type: "zombie", x: -2, z: 82, health: 630 },
+      { type: "zombie", x: 0, z: 98, health: 650 },
+      { type: "zombie", x: -1, z: 115, health: 600 },
+      { type: "zombie", x: 1, z: 132, health: 680 },
+      { type: "zombie", x: 0, z: 150, health: 700 },
+      { type: "zombie", x: -2, z: 168, health: 750 },
+    ],
+    collectibles: [
+      { type: "ally", x: 0, z: 5 }, { type: "ally", x: -1, z: 8 },
+      { type: "ally", x: 1, z: 14 }, { type: "ally", x: -2, z: 20 },
+      { type: "ally", x: 2, z: 28 }, { type: "ally", x: 0, z: 36 },
+      { type: "ally", x: -1, z: 45 }, { type: "ally", x: 1, z: 55 },
+      { type: "ally", x: 0, z: 65 }, { type: "ally", x: -2, z: 78 },
+      { type: "ally", x: 2, z: 90 }, { type: "ally", x: 0, z: 105 },
+      { type: "ally", x: -1, z: 120 }, { type: "ally", x: 1, z: 135 },
+      { type: "ally", x: 0, z: 150 }, { type: "ally", x: -2, z: 165 },
+      { type: "coin", x: 1, z: 18, value: 100 }, { type: "coin", x: -1, z: 55, value: 120 },
+      { type: "coin", x: 0, z: 95, value: 130 }, { type: "coin", x: 2, z: 135, value: 140 },
+      { type: "coin", x: -2, z: 168, value: 150 },
+      { type: "weapon", x: 0, z: 30, weapon: "gun" },
+      { type: "weapon", x: -1, z: 75, weapon: "shotgun" },
+      { type: "weapon", x: 1, z: 125, weapon: "rocket" },
+      { type: "weapon", x: 0, z: 170, weapon: "rocket" },
+    ],
+    gates: [
+      { type: "multiply", z: 185, value: 2, lane: -1.5 },
+      { type: "add", z: 185, value: 30, lane: 1.5 },
+      { type: "multiply", z: 220, value: 2, lane: -1.5 },
+      { type: "add", z: 220, value: 35, lane: 1.5 },
+      { type: "multiply", z: 255, value: 2, lane: 0 },
+    ],
+    boss: { type: "dragon_king", nameKo: "최종 보스 - 파멸의 신", z: 315, health: 60000 },
+    rewards: { coins: 20000 }
   }
 ];
 
 function generateStage(id) {
-  const length = 100 + id * 15;
+  // 11부터 난이도 급상승
+  const isHardMode = id > 10;
+  const hardMult = isHardMode ? 1.5 + (id - 10) * 0.2 : 1.0;
+  const length = isHardMode ? 200 + (id - 10) * 15 : 100 + id * 15;
   const enemies = [];
   const collectibles = [];
   const gates = [];
-  const numEnemies = Math.floor(4 + id * 0.8);
+  const numEnemies = isHardMode ? Math.floor(8 + (id - 10) * 1.2) : Math.floor(4 + id * 0.8);
   const numAllies = Math.floor(6 + id * 0.5);
   const numCoins = Math.floor(2 + id * 0.3);
 
@@ -825,7 +1233,7 @@ function generateStage(id) {
     collectibles.push({ type: "ally", x: (Math.random() * 4 - 2) | 0, z: 8 + (i / numAllies) * length * 0.6 });
   }
   for (let i = 0; i < numCoins; i++) {
-    collectibles.push({ type: "coin", x: (Math.random() * 4 - 2) | 0, z: 15 + Math.random() * length * 0.6, value: 10 + id * 3 });
+    collectibles.push({ type: "coin", x: (Math.random() * 4 - 2) | 0, z: 15 + Math.random() * length * 0.6, value: Math.floor((10 + id * 3) * hardMult) });
   }
   const weapons = ["gun", "shotgun", "rocket"];
   collectibles.push({ type: "weapon", x: (Math.random() * 4 - 2) | 0, z: length * 0.4 + Math.random() * length * 0.2, weapon: weapons[Math.min(Math.floor(id / 3), 2)] });
@@ -835,16 +1243,19 @@ function generateStage(id) {
 
   for (let i = 0; i < numEnemies; i++) {
     const z = 15 + (i / numEnemies) * length * 0.65;
-    if (Math.random() < 0.6) {
-      enemies.push({ type: "red_box", x: (Math.random() * 4 - 2) | 0, z, damage: Math.floor(5 + id * 1.2 + Math.random() * 5) });
+    if (Math.random() < (isHardMode ? 0.4 : 0.6)) {
+      enemies.push({ type: "red_box", x: (Math.random() * 4 - 2) | 0, z, damage: Math.floor((5 + id * 1.2 + Math.random() * 5) * hardMult) });
     } else {
-      enemies.push({ type: "zombie", x: (Math.random() * 4 - 2) | 0, z, health: Math.floor(20 + id * 8) });
+      enemies.push({ type: "zombie", x: (Math.random() * 4 - 2) | 0, z, health: Math.floor((20 + id * 8) * hardMult) });
     }
   }
 
   const gateZ = length * 0.7;
   gates.push({ type: "multiply", z: gateZ, value: 2, lane: -1.5 });
   gates.push({ type: "add", z: gateZ, value: Math.floor(5 + id * 1.5), lane: 1.5 });
+  if (isHardMode) {
+    gates.push({ type: "multiply", z: length * 0.85, value: 2, lane: 0 });
+  }
 
   const bossTypes = [
     { type: "zombie_boss", nameKo: "좀비 군단장" },
@@ -857,10 +1268,13 @@ function generateStage(id) {
     { type: "dark_knight", nameKo: "폭풍의 거인" },
   ];
   const bt = bossTypes[(id - 1) % bossTypes.length];
+  const bossHealth = isHardMode
+    ? Math.floor(5000 * Math.pow(id - 10, 1.5) + 8000)
+    : Math.floor(300 * Math.pow(id, 1.2));
   return {
     id, name: `스테이지 ${id}`, length, enemies, collectibles, gates,
-    boss: { ...bt, z: length - 5, health: Math.floor(300 * Math.pow(id, 1.2)) },
-    rewards: { coins: 50 * id }
+    boss: { ...bt, z: length - 5, health: bossHealth },
+    rewards: { coins: Math.floor(50 * id * hardMult) }
   };
 }
 
@@ -918,9 +1332,9 @@ function loadGameData() {
     const data = localStorage.getItem('crowdRunnerSave');
     if (data) {
       const saved = { ...DEFAULT_SAVE, ...JSON.parse(data) };
-      // 스테이지 범위 보정 (이전 버그로 11 이상 저장된 경우 대비)
-      saved.currentStage = Math.max(1, Math.min(saved.currentStage, 10));
-      saved.maxStage = Math.max(1, Math.min(saved.maxStage, 10));
+      // 스테이지 범위 보정
+      saved.currentStage = Math.max(1, Math.min(saved.currentStage, 20));
+      saved.maxStage = Math.max(1, Math.min(saved.maxStage, 20));
       return saved;
     }
   } catch (e) { /* ignore */ }
@@ -1065,10 +1479,10 @@ function renderStageSelect() {
   const grid = $('stageSelectGrid');
   grid.innerHTML = '';
   const stageNames = [];
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 20; i++) {
     stageNames.push(getStage(i).name);
   }
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 20; i++) {
     const btn = document.createElement('button');
     const isUnlocked = i <= gameData.maxStage;
     const isCleared = i < gameData.maxStage;
@@ -2288,18 +2702,18 @@ class Game {
     gameData.coins += totalCoins;
     const clearedStage = this.stageId;
 
-    if (clearedStage >= 10) {
-      // 마지막 스테이지 클리어 - currentStage를 10으로 유지
-      gameData.maxStage = Math.max(gameData.maxStage, 10);
-      gameData.currentStage = 10;
+    if (clearedStage >= 20) {
+      // 마지막 스테이지 클리어 - currentStage를 20으로 유지
+      gameData.maxStage = Math.max(gameData.maxStage, 20);
+      gameData.currentStage = 20;
     } else {
       if (gameData.currentStage === gameData.maxStage) gameData.maxStage++;
-      gameData.currentStage = Math.min(gameData.currentStage + 1, 10);
+      gameData.currentStage = Math.min(gameData.currentStage + 1, 20);
     }
     saveGameData(gameData);
 
     setTimeout(() => {
-      if (clearedStage >= 10) {
+      if (clearedStage >= 20) {
         // Show ending credits!
         showEndingCredit(totalCoins, stars, this.allies, this.startAllies);
       } else {
@@ -2546,8 +2960,8 @@ function showStageIntro(stageId, stageName, callback) {
 }
 
 function startGame(stageId) {
-  // 스테이지 범위를 1~10으로 제한
-  stageId = Math.max(1, Math.min(stageId, 10));
+  // 스테이지 범위를 1~20으로 제한
+  stageId = Math.max(1, Math.min(stageId, 20));
   gameData.currentStage = stageId;
   if (game) game.destroy();
   game = null; // Clear reference before creating new
